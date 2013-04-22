@@ -12,8 +12,8 @@ object Run {
     val movActor = system.actorOf(Props(new MovementDBActor("hanna")), name = "movHannaToDBActor")
 
     import movementMessages._
-    movActor ! SaveMovement(1, "bewege", List("3", "2"))
-    movActor ! SaveMovement(2, "rotiere", List("45", "2"))
+    movActor ! SaveMovement(2, "rotiere", List("3", "2"), List("Hallo", "Dieter", "Taggy Tag"))
+    movActor ! SaveMovement(1, "rotiere", List("45", "2"), Nil)
     movActor ! SaveRotation(3, 47, 2)
 
     Thread.sleep(500)

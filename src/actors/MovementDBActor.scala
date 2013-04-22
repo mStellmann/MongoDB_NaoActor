@@ -5,14 +5,14 @@ import akka.actor._
 package movementMessages {
 
 //generell fuer viele Befehle
-case class SaveMovement(time: Int, command: String, args: List[String], comments: Map[String, List[String]])
+case class SaveMovement(time: Int, command: String, args: List[String], tags: List[String])
 
 //oder spezifischer?
 case class SaveRotation(time: Int, angle: Int, speed: Int)
 
 case class FindMovementsInTime(from: Int, to: Int)
 
-case class FoundMovements(movs: List[String])
+case class FoundMovements(command: String, movs: List[String])
 
 }
 
@@ -25,22 +25,18 @@ class MovementDBActor(naoID: String) extends Actor {
 
   override def receive = {
 
-    case SaveMovement(time, command, args, comments) => {
+    case SaveMovement(time, command, args, tags) => {
       println("MovSave")
-      val content = Map(command -> args)
-      dbActor ! dbMessages.Save(collectionToSaveIn, time, naoID, content)
-    }
-
-    case SaveRotation(time, angle, speed) => {
-      println("MovSaveRot")
-      val content = Map("rotiere" -> List(angle.toString, speed.toString))
-      dbActor ! dbMessages.Save(collectionToSaveIn, time, naoID, content)
+      val content = Map("command" -> List(command), "args" -> args)
+      dbActor ! dbMessages.Save(collectionToSaveIn, time, naoID, content ++ Map("tags" -> tags))
     }
 
     case FindMovementsInTime(from, to) => {
       println("MovFindInTime")
       dbActor ! dbMessages.FindInColumnBetweenT(collectionToSaveIn, naoID, "time", from, to, sender)
     }
+
+    // TODO find(rotiere) .... tag
 
     case dbMessages.FoundInColumnBetweenT(docs, client) => {
       //val movs = docs.convertItBackToSomethingMeanigful

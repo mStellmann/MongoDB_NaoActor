@@ -11,7 +11,7 @@ case class Save(collection: String, timestamp: Int, naoID: String, content: Map[
 
 case class FindInColumnBetweenT(collection: String, naoID: String, column: String, from: Int, to: Int, client: ActorRef)
 
-case class FoundInColumnBetweenT(docs: List[(String, Option[List[String]])], client: ActorRef)
+case class FoundInColumnBetweenT(docs: List[Map[String, AnyRef]], client: ActorRef)
 
 }
 
@@ -38,20 +38,12 @@ class MongoDBActor extends Actor {
       println("DBFind")
       val mongoCollection = mongoClient(collection)(naoID)
 
-      val found = mongoCollection.find(column $lte to $gte from)
+      val found = (mongoCollection.find(column $lte to $gte from)).toList
 
-      //println(found.mkString("\n"))
-
-      val res = for (
-        entry <- found;
-        name <- entry.keys;
-        if name != "_id" //;
-      //TODO Types
-      ) yield (name ->(entry.getAs[List[String]](name), entry.getAs[List[String]](name).get.getClass))
-
-      println(res.mkString("\n"))
-
-      //      sender ! FoundInColumnBetweenT(res.toList, client)
+      val res = for (entry <- found) yield {
+        for (kvTupel <- entry if (kvTupel._1 != "_id")) yield kvTupel
+      }
+      //      sender ! FoundInColumnBetweenT(res, client) TODO
     }
 
     case anyThing => println("What's that?: " + anyThing)
