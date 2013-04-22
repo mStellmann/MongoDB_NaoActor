@@ -2,13 +2,17 @@ package actors
 
 import akka.actor._
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.gridfs.Imports._
+
 
 package dbMessages {
-  case class Save(collection: String, timestamp: Int, naoID: String, content: Map[String, List[String]])
 
-  case class FindInColumnBetweenT(collection: String, naoID: String, column: String, from: Int, to: Int, client: ActorRef)
+case class Save(collection: String, timestamp: Int, naoID: String, content: Map[String, List[String]])
 
-  case class FoundInColumnBetweenT(docs: List[(String, Option[List[String]])], client: ActorRef)
+case class FindInColumnBetweenT(collection: String, naoID: String, column: String, from: Int, to: Int, client: ActorRef)
+
+case class FoundInColumnBetweenT(docs: List[(String, Option[List[String]])], client: ActorRef)
+
 }
 
 class MongoDBActor extends Actor {
@@ -17,6 +21,7 @@ class MongoDBActor extends Actor {
   val mongoClient = MongoClient()
 
   import dbMessages._
+
   override def receive = {
 
     case Save(collection, time, naoID, content) => {
