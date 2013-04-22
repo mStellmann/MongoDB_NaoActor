@@ -3,16 +3,21 @@ package actors
 import akka.actor._
 
 package movementMessages {
-  //generell für viele Befehle
-  case class SaveMovement(time: Int, command: String, args: List[String])
-  //oder spezifischer?
-  case class SaveRotation(time: Int, angle: Int, speed: Int)
 
-  case class FindMovementsInTime(from: Int, to: Int)
-  case class FoundMovements(movs: List[String])
+//generell fuer viele Befehle
+case class SaveMovement(time: Int, command: String, args: List[String], comments: Map[String, List[String]])
+
+//oder spezifischer?
+case class SaveRotation(time: Int, angle: Int, speed: Int)
+
+case class FindMovementsInTime(from: Int, to: Int)
+
+case class FoundMovements(movs: List[String])
+
 }
 
 class MovementDBActor(naoID: String) extends Actor {
+
   import movementMessages._
 
   val collectionToSaveIn = "mov"
@@ -20,7 +25,7 @@ class MovementDBActor(naoID: String) extends Actor {
 
   override def receive = {
 
-    case SaveMovement(time, command, args) => {
+    case SaveMovement(time, command, args, comments) => {
       println("MovSave")
       val content = Map(command -> args)
       dbActor ! dbMessages.Save(collectionToSaveIn, time, naoID, content)

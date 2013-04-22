@@ -4,7 +4,11 @@ import akka.actor.Actor
 
 package audioMessages {
 
-case class SaveAudioFile(timestamp: Int, name: String, audioFile: Array[Byte], comments: List[String])
+case class SaveAudioFile(timestamp: Int, name: String, audioFile: Array[Byte], comments: Map[String, List[String]])
+
+case class FindAudioInTime(from: Int, to: Int)
+
+case class FoundAudioFiles(movs: List[String])
 
 }
 

@@ -4,9 +4,9 @@ import akka.actor.Actor
 
 package videoMessages {
 
-case class SaveVideoFile(timestamp: Int, name: String, videoFile: Array[Byte], comments: List[String])
+case class SaveVideoFile(timestamp: Int, name: String, videoFile: Array[Byte], comments: Map[String, List[String]])
 
-// save Picture ?!?!
+case class SavePictureFile(timestamp: Int, name: String, pictureFile: Array[Byte], comments: Map[String, List[String]])
 
 }
 

@@ -40,16 +40,18 @@ class MongoDBActor extends Actor {
 
       val found = mongoCollection.find(column $lte to $gte from)
 
+      //println(found.mkString("\n"))
+
       val res = for (
         entry <- found;
         name <- entry.keys;
         if name != "_id" //;
       //TODO Types
-      ) yield (name -> entry.getAs[List[String]](name))
+      ) yield (name ->(entry.getAs[List[String]](name), entry.getAs[List[String]](name).get.getClass))
 
-      //println(res.mkString("\n"))
+      println(res.mkString("\n"))
 
-      sender ! FoundInColumnBetweenT(res.toList, client)
+      //      sender ! FoundInColumnBetweenT(res.toList, client)
     }
 
     case anyThing => println("What's that?: " + anyThing)
