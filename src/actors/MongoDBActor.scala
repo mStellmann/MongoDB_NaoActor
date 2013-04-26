@@ -16,7 +16,6 @@ case class FoundInColumnBetweenT(docs: List[Map[String, AnyRef]], client: ActorR
 }
 
 class MongoDBActor extends Actor {
-
   //ThreadPool!?
   val mongoClient = MongoClient()
 
