@@ -46,6 +46,8 @@ class MongoDBActor extends Actor {
       //      sender ! FoundInColumnBetweenT(res, client) TODO
     }
 
+      // case FindDataBetweenTimestamps
+
     case anyThing => println("What's that?: " + anyThing)
   }
 }
