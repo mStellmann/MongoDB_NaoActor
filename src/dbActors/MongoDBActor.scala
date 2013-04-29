@@ -5,4 +5,7 @@ package dbActors
  * It is a basic interface for saving and finding objects in the database.
  */
 class MongoDBActor {
+  // TODO
+  //  anyrefs aus der db matchen
+  // in der DB -> Enum    --- typen in enum speichern und gegen enum matchen
 }
