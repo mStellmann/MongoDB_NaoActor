@@ -1,19 +1,19 @@
 package messages
 
 
-// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further UCAFSID) (e.g. DBAccessFile)
+// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further DatabaseActor) (e.g. DBAccessFile)
 package internalMessages {
 
 import akka.actor.ActorRef
 import scala.util.Try
 
-case class Save(collection: String, RobotSerialNumber: String, timestamp: Long, content: Map[String, List[String]])
+case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[String]])
 
-case class SaveFile(collection: String, RobotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
+case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
 
-case class SearchData(collection: String, RobotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchData(collection: String, robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
 
-case class SearchFile(collection: String, RobotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchFile(collection: String, robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
 case class RetrievedData(dataList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
 
@@ -29,13 +29,9 @@ import scala.util.Try
 
 case object RobotSerialNumbers
 
-//case class GetUCAFSIDs(databaseActorTyp: String)
-
 case class DatabaseActor(databaseActorTyp: String)
 
 case class RetrievedRobotSerialNumbers(rsnList: List[String])
-
-//case class RetreivedUCAFSIDs(databaseActorRef: Try[ActorRef])
 
 case class RetrievedDatabaseActors(databaseActorRef: Try[ActorRef])
 
@@ -62,6 +58,7 @@ case class SearchVideoFile(robotSerialNumber: String, timestampStart: Option[Lon
 
 case class SearchPicture(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
+// For the Use-Case-Actors
 case class RetrievedMovement(movementList: Either[List[Movement], String])
 
 case class RetrievedAudioFile(audioFileList: Either[List[AudioFile], String])

@@ -1,6 +1,7 @@
 package dbActors
 
 import akka.actor.Actor
+import messages.agentMessages.{DatabaseActor, RobotSerialNumbers}
 
 /**
  * This actor acts as an agent between the user and our DBActor-System.
@@ -8,8 +9,12 @@ import akka.actor.Actor
  *
  * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessFile).
  */
-class DBAgent extends Actor{
+class DBAgent extends Actor {
   def receive = {
-    ??? // TODO
+    // TODO - ScalaDoc
+    case RobotSerialNumbers => ??? // TODO
+
+    // TODO - ScalaDoc
+    case DatabaseActor(databaseActorTyp) => ??? // TODO
   }
 }
