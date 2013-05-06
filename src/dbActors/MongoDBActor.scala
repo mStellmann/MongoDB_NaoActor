@@ -1,6 +1,6 @@
 package dbActors
 
-import akka.actor.Actor
+import akka.actor.{Props, Actor}
 import messages.internalMessages.{SearchFile, SearchData, SaveFile, Save}
 import com.mongodb.casbah.MongoClient
 
@@ -8,6 +8,8 @@ import com.mongodb.casbah.MongoClient
  * This actor works as an adapter for the connection and communication with a MongoDB-Database.
  * It is a basic interface for saving and finding objects in the database.
  */
+
+// TODO - Max
 class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
   /* Anmerkungen

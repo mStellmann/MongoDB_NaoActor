@@ -9,7 +9,9 @@ import messages.agentMessages.{DatabaseActor, RobotSerialNumbers}
  *
  * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessFile).
  */
-class DBAgent extends Actor {
+
+// TODO - Matthias
+class DBAgent(robotSerialNumberList: List[String]) extends Actor {
   def receive = {
     // TODO - ScalaDoc
     case RobotSerialNumbers => ??? // TODO

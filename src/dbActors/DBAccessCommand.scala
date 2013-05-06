@@ -7,6 +7,8 @@ import messages.internalMessages.RetrievedData
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
  */
+
+// TODO - Gregstar
 class DBAccessCommand extends Actor {
   def receive = {
     // TODO - ScalaDoc
