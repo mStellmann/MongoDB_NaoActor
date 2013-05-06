@@ -3,18 +3,27 @@ package testingFiles
 import akka.actor._
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons
-import java.io.File
+import java.io.{InputStream, FileInputStream, File}
+import java.util.Properties
 
 object testRunner extends App {
+
+  val prop = new Properties()
+  prop.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
+
+  println(prop.getProperty("robotSerialNumbers"))
+  println(prop.getProperty("dbport"))
+
+
   // Create an Akka system
-  val system = ActorSystem("DBSystem")
+  //  val system = ActorSystem("DBSystem")
 
-  // create the result listener, which will print the result and shutdown the system
-  val dbActor1 = system.actorOf(Props[DBActor], name = "dbact")
-
-  // start the calculation
-  dbActor1 ! StringMsg("key1", "Hilfe -> Halllllo")
-  dbActor1 ! "WHAHAHAHA"
+  //  // create the result listener, which will print the result and shutdown the system
+  //  val dbActor1 = system.actorOf(Props[DBActor], name = "dbact")
+  //
+  //  // start the calculation
+  //  dbActor1 ! StringMsg("key1", "Hilfe -> Halllllo")
+  //  dbActor1 ! "WHAHAHAHA"
 
 }
 
@@ -31,8 +40,8 @@ class DBActor extends Actor {
   //
   //
   override def receive = {
-    //    case StringMsg(key,value) => {
-    //      val mongoObj = MongoDBObject(key -> value)
+    //    case StringMsg(key,naogateway.value) => {
+    //      val mongoObj = MongoDBObject(key -> naogateway.value)
     //      mongoDB += mongoObj
     //      println("Message in DB eingetragen")
     //
