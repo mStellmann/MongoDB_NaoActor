@@ -42,7 +42,7 @@ package userMessages {
 
 import messages.dataTyps._
 
-case class SaveMovement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[String], tagList: List[String] = Nil) extends TMovement
+case class SaveMovement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[AnyVal], tagList: List[String] = Nil) extends TMovement
 
 case class SaveAudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String] = Nil) extends TFile
 
@@ -77,7 +77,7 @@ sealed trait TMovement
 sealed trait TFile
 
 // ----- Classes -----
-case class Movement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[String], tagList: List[String]) extends TMovement
+case class Movement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[AnyVal], tagList: List[String]) extends TMovement
 
 case class AudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String]) extends TFile
 

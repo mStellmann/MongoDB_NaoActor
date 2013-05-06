@@ -17,6 +17,6 @@ class DBAccessMovement extends Actor {
     case SearchMovement(robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
-    case RetrievedData(dataList, origin)
+    case RetrievedData(dataList, origin) => ??? // TODO
   }
 }
