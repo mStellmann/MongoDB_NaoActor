@@ -14,9 +14,9 @@ case class SaveCommand(collection: String, robotSerialNumber: String, timestamp:
 
 case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
 
-case class SearchData(collection: String, robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchData(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
 
-case class SearchFile(collection: String, robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchFile(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
 case class ReceivedData(dataList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
 
