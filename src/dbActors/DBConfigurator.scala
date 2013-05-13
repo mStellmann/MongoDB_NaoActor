@@ -15,7 +15,7 @@ class DBConfigurator extends Actor {
   val cfgReader = new Properties()
   cfgReader.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
 
-  override def preStart = {
+  override def preStart() {
 
     val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
 

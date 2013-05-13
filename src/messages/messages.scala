@@ -18,9 +18,9 @@ case class SearchData(collection: String, robotSerialNumber: String, timestampSt
 
 case class SearchFile(collection: String, robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
-case class RetrievedData(dataList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
+case class ReceivedData(dataList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
 
-case class RetrievedFile(fileList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
+case class ReceivedFile(fileList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
 
 }
 
@@ -32,11 +32,11 @@ import scala.util.Try
 
 case object RobotSerialNumbers
 
-case object DatabaseActor
+case object DatabaseActors
 
-case class RetrievedRobotSerialNumbers(rsnList: Array[String])
+case class ReceivedRobotSerialNumbers(rsnList: Array[String])
 
-case class RetrievedDatabaseActors(commandAccess: ActorRef, fileAccess: ActorRef)
+case class ReceivedDatabaseActors(commandAccess: ActorRef, fileAccess: ActorRef)
 
 }
 
@@ -67,15 +67,15 @@ case class SearchVideoFile(robotSerialNumber: String, timestampStart: Option[Lon
 case class SearchPicture(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
 // For the Use-Case-Actors
-//case class RetrievedMovement(movementList: Either[List[Movement], String])
+//case class ReceivedMovement(movementList: Either[List[Movement], String])
 
-case class RetrievedCommand(commandList: Either[List[Call], String])
+case class ReceivedCommand(commandList: Either[List[Call], String])
 
-case class RetrievedAudioFile(audioFileList: Either[List[AudioFile], String])
+case class ReceivedAudioFile(audioFileList: Either[List[AudioFile], String])
 
-case class RetrievedVideoFile(videoFileList: Either[List[VideoFile], String])
+case class ReceivedVideoFile(videoFileList: Either[List[VideoFile], String])
 
-case class RetrievedPicture(imageList: Either[List[Picture], String])
+case class ReceivedPicture(imageList: Either[List[Picture], String])
 
 }
 

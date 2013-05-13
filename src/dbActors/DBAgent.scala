@@ -1,6 +1,6 @@
 package dbActors
 
-import akka.actor.{TypedActor, Props, Actor}
+import akka.actor.{Props, Actor}
 import messages.agentMessages._
 
 /**
@@ -10,7 +10,7 @@ import messages.agentMessages._
  * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessFile).
  */
 class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
-  override def preStart = {
+  override def preStart() {
     val childCommands = context.actorOf(Props[DBAccessCommand], name = "DBAccessCommand")
     val childFiles = context.actorOf(Props[DBAccessFile], name = "DBAccessFile")
 
@@ -22,15 +22,15 @@ class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
     /**
      * This function returns all serialnumbers to the sender.
      */
-    case RobotSerialNumbers => sender ! RetrievedRobotSerialNumbers(robotSerialNumberList)
+    case RobotSerialNumbers => sender ! ReceivedRobotSerialNumbers(robotSerialNumberList)
 
     /**
      * This function returns the requested ActorRefs to the sender.
      */
-    case DatabaseActor => {
+    case DatabaseActors => {
       val cCom = context.actorFor("DBAccessCommand")
       val cFile = context.actorFor("DBAccessFile")
-      sender ! RetrievedDatabaseActors(cCom, cFile)
+      sender ! ReceivedDatabaseActors(cCom, cFile)
     }
   }
 }
