@@ -3,7 +3,7 @@ package dbActors
 import akka.actor.{ActorRef, Actor}
 import messages.userMessages._
 import messages.internalMessages.{SearchData, ReceivedData}
-
+import scala.util.{Try, Success, Failure}
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
  */
@@ -23,14 +23,23 @@ class DBAccessCommand extends Actor {
 
 
     // TODO - ScalaDoc
-    case SearchCommand(robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => mongoDBActor ! SearchData()// TODO
+    // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
+    case SearchCommand(robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => mongoDBActor ! SearchData(robotSerialNumber, timestampStart, timestampEnd, Option(Map("commandList" -> commandList.get, "tagList" -> tagList.get)), sender)// TODO
 
     // TODO - ScalaDoc
-    case SearchData(collection, robotSerialNumber, timestampStart, timestampEnd, content, origin)  => ??? // TODO
+      //eigents hinzugefuegt und auch wieder entfaernt, muss nochmal diskutiert werden
+   // case SearchData(robotSerialNumber, timestampStart, timestampEnd, content, origin)  => ??? // TODO
 
 
     // TODO - ScalaDoc
-    case ReceivedData(dataList, origin) => ??? // TODO
+    case ReceivedData(dataList, origin) => dataList match{
+      case Success(list) => {
+        for(doc <- list) doc.keys.foreach()
+      }
+      case Failure(list) => {
+
+      }
+    } // TODO
 
 
   }
