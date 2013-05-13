@@ -10,14 +10,14 @@ import java.io.FileInputStream
  * First of all it creates the MongoDBActor to providing the communication with the Database.
  * Afterwards the DBAgent will be created, which provides the user->system-communication.
  */
-
+// TODO - Config für MongoDB einlesen..
 class DBConfigurator extends Actor {
   val cfgReader = new Properties()
   cfgReader.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
   val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
 
   // creating and starting the MongoDBActor
-  val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
+  val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "MongoDBActor")
   // creating and starting the DBAgent
   val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
 
