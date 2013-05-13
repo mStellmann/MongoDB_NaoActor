@@ -11,28 +11,24 @@ import java.io.FileInputStream
  * Afterwards the DBAgent will be created, which provides the user->system-communication.
  */
 
-// TODO - Matthias
 class DBConfigurator extends Actor {
-  /*  Anmerkungen:
-  aus der CFG muss die datenbank connection gelesen werden
-  dbClient beim erstellen des mongodbactors erstellen?? dependency injection..
-  */
   val cfgReader = new Properties()
   cfgReader.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
 
   override def preStart = {
 
-
-    // cfgReader.getProperty("robotSerialNumbers").split(",")
-    val agentList = Nil
+    val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
 
     // creating and starting the MongoDBActor
-    context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
+    val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
     // creating and starting the DBAgent
-    context.actorOf(Props().withCreator(new DBAgent(agentList)), name = "DBAgent")
+    val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
+
+    context.watch(childMongo)
+    context.watch(childAgent)
   }
 
   def receive = {
-    ??? // TODO
+    ??? // TODO - supervising bla?!
   }
 }

@@ -1,7 +1,7 @@
 package dbActors
 
-import akka.actor.Actor
-import messages.agentMessages.{DatabaseActor, RobotSerialNumbers}
+import akka.actor.{TypedActor, Props, Actor}
+import messages.agentMessages._
 
 /**
  * This actor acts as an agent between the user and our DBActor-System.
@@ -9,14 +9,28 @@ import messages.agentMessages.{DatabaseActor, RobotSerialNumbers}
  *
  * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessFile).
  */
+class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
+  override def preStart = {
+    val childCommands = context.actorOf(Props[DBAccessCommand], name = "DBAccessCommand")
+    val childFiles = context.actorOf(Props[DBAccessFile], name = "DBAccessFile")
 
-// TODO - Matthias
-class DBAgent(robotSerialNumberList: List[String]) extends Actor {
+    context.watch(childCommands)
+    context.watch(childFiles)
+  }
+
   def receive = {
-    // TODO - ScalaDoc
-    case RobotSerialNumbers => ??? // TODO
+    /**
+     * This function returns all serialnumbers to the sender.
+     */
+    case RobotSerialNumbers => sender ! RetrievedRobotSerialNumbers(robotSerialNumberList)
 
-    // TODO - ScalaDoc
-    case DatabaseActor(databaseActorTyp) => ??? // TODO
+    /**
+     * This function returns the requested ActorRefs to the sender.
+     */
+    case DatabaseActor => {
+      val cCom = context.actorFor("DBAccessCommand")
+      val cFile = context.actorFor("DBAccessFile")
+      sender ! RetrievedDatabaseActors(cCom, cFile)
+    }
   }
 }
