@@ -27,7 +27,7 @@ case class ReceivedFile(fileList: Try[List[Map[String, List[AnyRef]]]], origin: 
 // communication between Agent and use-cases
 package agentMessages {
 
-import akka.actor.ActorRef
+import akka.actor.{ActorSelection, ActorRef}
 import scala.util.Try
 
 case object RobotSerialNumbers

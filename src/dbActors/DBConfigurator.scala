@@ -14,21 +14,19 @@ import java.io.FileInputStream
 class DBConfigurator extends Actor {
   val cfgReader = new Properties()
   cfgReader.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
+  val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
+
+  // creating and starting the MongoDBActor
+  val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
+  // creating and starting the DBAgent
+  val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
 
   override def preStart() {
-
-    val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
-
-    // creating and starting the MongoDBActor
-    val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
-    // creating and starting the DBAgent
-    val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
-
     context.watch(childMongo)
     context.watch(childAgent)
   }
 
   def receive = {
-    ??? // TODO - supervising bla?!
+    case _ => println("DBConfigurator received something") // TODO - supervising bla?!
   }
 }
