@@ -32,11 +32,11 @@ import scala.util.Try
 
 case object RobotSerialNumbers
 
-case class DatabaseActor(databaseActorTyp: String)
+case object DatabaseActor
 
-case class RetrievedRobotSerialNumbers(rsnList: List[String])
+case class RetrievedRobotSerialNumbers(rsnList: Array[String])
 
-case class RetrievedDatabaseActors(databaseActorRef: Try[ActorRef])
+case class RetrievedDatabaseActors(commandAccess: ActorRef, fileAccess: ActorRef)
 
 }
 
