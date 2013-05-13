@@ -5,7 +5,7 @@ import messages.userMessages._
 import messages.userMessages.SaveVideoFile
 import messages.userMessages.SaveAudioFile
 import messages.userMessages.SavePicture
-import messages.internalMessages.RetrievedFile
+import messages.internalMessages.ReceivedFile
 import messages.userMessages.SearchAudioFile
 
 /**
@@ -32,6 +32,6 @@ class DBAccessFile extends Actor {
     case SearchPicture(robotSerialNumber, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
-    case RetrievedFile(fileList, origin) => ??? // TODO
+    case ReceivedFile(fileList, origin) => ??? // TODO
   }
 }
