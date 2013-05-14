@@ -18,9 +18,9 @@ case class SearchData(robotSerialNumber: String, timestampStart: Option[Long], t
 
 case class SearchFile(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
-case class ReceivedData(dataList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
+case class ReceivedData(dataList: Try[List[Map[String, List[Any]]]], origin: ActorRef)
 
-case class ReceivedFile(fileList: Try[List[Map[String, List[AnyRef]]]], origin: ActorRef)
+case class ReceivedFile(fileList: Try[List[Map[String, List[Any]]]], origin: ActorRef)
 
 }
 
