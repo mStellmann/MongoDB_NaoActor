@@ -8,7 +8,7 @@ import akka.actor.ActorRef
 import scala.util.Try
 import naogateway.value.NaoMessages.Call
 
-case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[AnyVal]])
+case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[Any]])
 
 case class SaveCommand(collection: String, robotSerialNumber: String, timestamp: Long, command: Call, content: Map[String, List[AnyVal]])
 

@@ -8,6 +8,11 @@ import messages.internalMessages.{ SearchData, SearchFile }
 import messages.internalMessages.{ ReceivedData, ReceivedFile }
 import scala.util.{ Try, Success, Failure }
 import com.mongodb.casbah.commons.MongoDBObject
+import naogateway.value.Hawactormsg
+import naogateway.value.NaoMessages._
+import naogateway.value.NaoMessages.Conversions._
+import scala.collection.mutable.MutableList
+import naogateway.value.Hawactormsg.MixedValue
 
 // TODO - Max
 /**
@@ -29,15 +34,12 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
     //TODO In DBAccessCommand
     case SaveCommand(db, robotSerialNumber, timestamp, command, content) => {
 
-      //TODO callArgs saveTypes see NaoMessages toString
-      val mongoDBDoc = MongoDBObject("time" -> List(timestamp), "callModule" -> List(command.module.toString),
-        "callMethod" -> List(command.method.toString), "callArgs" -> List(command.stringParameters))
+      val mongoDBDoc = Map(
+        "callModule" -> List(command.module.name.toString),
+        "callMethod" -> List(command.method.name.toString),
+        "callArgs" -> unpackMixedVals(command.parameters))
 
-      val contentWithSupportedTypes = convertMapToSaveTypes(content)
-      val dBEntry = mongoDBDoc ++ contentWithSupportedTypes.asDBObject
-
-      val mongoCollection = mongoDBClient(db)(robotSerialNumber)
-      save(mongoCollection, dBEntry)
+      self ! Save(db, robotSerialNumber, timestamp, mongoDBDoc ++ content)
     }
 
     case SaveFile(db, robotSerialNumber, timestamp, filename, filetyp, file, content) => {
@@ -56,10 +58,11 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       //gfsFile.aliases.+=("")
       gfsFile.save
     }
+
     // TODO - collection als Option
     case SearchData(robotSerialNumber, timestampStart, timestampEnd, content, origin) => {
       //TODO search in all dbs
-      println(mongoDBClient.getDatabaseNames)
+      //println(mongoDBClient.getDatabaseNames)
       val db = "movs"
 
       val mongoCollection = mongoDBClient(db)(robotSerialNumber)
@@ -77,24 +80,37 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       val search = { { ("time" $gte start $lte end) } }
 
       val finalSearchRequest = search //++ tags.asDBObject
-      println("Searching For:" + finalSearchRequest)
+      //      println("Searching For:" + finalSearchRequest)
 
       val found = mongoCollection.find(finalSearchRequest)
-
-      //val findAll = mongoCollection.find(new BasicDBObject)
 
       val docsFound = (for {
         document <- found
       } yield (for {
+        //TODO if list else lassen keien forcompr
         (key, value) <- document if (key != "_id" && value.isInstanceOf[BasicDBList])
       } yield ((key, value.asInstanceOf[BasicDBList].toList))).toMap[String, List[Any]]).toList
 
+      //TODO in DB Access
+      val commands = for (entry <- docsFound) yield {
+        if (entry.contains("callModule")) {
+          val callModule: Symbol = Symbol.apply(entry("callModule")(0).asInstanceOf[String])
+          val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
+          val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
+          Call(callModule, callMethod, callArgs)
+        }
+      }
+
       if (docsFound.isEmpty)
         sender ! ReceivedData(Failure(new NoSuchElementException("Nothing Found")), origin)
-      else sender ! ReceivedData(Success(docsFound), origin)
+      else {
+        for (command <- commands if command != ()) sender ! command
+        sender ! ReceivedData(Success(docsFound), origin)
+      }
     }
-    // TODO - ScalaDoc
-    case SearchFile(robotSerialNumber, timestampStart, timestampEnd, filetyp, content, origin) => ??? // TODO
+
+    // TODO 
+    case SearchFile(robotSerialNumber, timestampStart, timestampEnd, filetyp, content, origin) => ???
   }
 
   def save(collection: MongoCollection, entry: DBObject) {
@@ -109,7 +125,6 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
     } yield getSaveableStuff(vali))
   }
 
-  //TODO Maybe convert this to a Type
   def getSaveableStuff(from: Any) = {
     from match {
       case x: Int => x
@@ -118,8 +133,45 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       case x: Double => x
       case x: Boolean => x
       case x: String => x
+      case x: List[_] => x
       case x: scala.collection.immutable.StringOps => x.repr
       case other => "NOT_SAVEABLE_MONGODBACTOR.SCALA_[ToStringed: " + other.toString + "|Type: " + other.getClass + "]"
+    }
+  }
+
+  def unpackMixedVals(list: List[MixedValue]): List[Any] = {
+    for (arg <- list) yield {
+      if (arg.hasInt) arg.getInt
+      else if (arg.hasFloat()) arg.getFloat
+      else if (arg.hasBool()) arg.getBool
+      else if (arg.hasString()) arg.getString
+      else if (arg.hasBinary()) arg.getBinary
+      else if (arg.getArrayCount() > 0) {
+        import scala.collection.JavaConversions._
+        unpackMixedVals(arg.getArrayList().toList)
+      }
+    }
+  }
+
+  def dbTypesToMixedVals(list: List[Any]): List[MixedValue] = {
+    import naogateway.value.NaoMessages.Conversions._
+    for (arg <- list) yield {
+      arg match {
+        case x: Int => int2Mixed(x)
+        case x: Double => float2Mixed(x.toFloat)
+        case x: Boolean => bool2Mixed(x)
+        case x: String => string2Mixed(x)
+        //        case x: Byte => x
+        case x: BasicDBList => {
+          val floatList = for (i <- 0 until x.size()) yield {
+            x.toList(i) match {
+              case d: Double => d.toFloat
+              case x => x
+            }
+          }
+          anyToMixedVal(floatList)
+        }
+      }
     }
   }
 }
