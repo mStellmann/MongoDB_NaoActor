@@ -47,7 +47,7 @@ class ControlActor(agent: ActorSelection, gui: SwingGUI) extends Actor {
     case ReceivedCommand(commandList) =>
 
       commandList match {
-        case Left(callList) => for (elem <- callList) println(elem)
+        //        case Left(callList) => for (elem <- callList) println(elem)
         case Right(errMsg) => println(errMsg)
       }
   }

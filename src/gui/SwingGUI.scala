@@ -16,6 +16,7 @@ class SwingGUI extends Frame {
   val panel_cBoxChooseRobot = new FlowPanel()
   val cBox_commands = new ComboBox(commandMap.keys.toList)
   val button_search = new Button("Los, suchen!")
+  val button_sendToNao = new Button("Back to NAO") // TODO Einbauen..
   // ---------- init() ----------
 
 
@@ -35,6 +36,8 @@ class SwingGUI extends Frame {
     add(cBox_commands, gbc)
     gbc.grid = (0, 3)
     add(button_search, gbc)
+    gbc.grid = (1, 3)
+    add(button_sendToNao, gbc)
 
   }
   contents = mainPanel
@@ -42,24 +45,11 @@ class SwingGUI extends Frame {
 
 
 class DatePanel extends FlowPanel {
-  val tf1 = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"))
-  //  tf1.peer.setColumns(10)
-  tf1.peer.setValue(new Date())
-  val test = tf1.peer.getValue().asInstanceOf[Date]
+  val formTextfield = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"))
+  formTextfield.peer.setValue(new Date())
 
-  println(test.getTime)
+  //  val test = tf1.peer.getValue().asInstanceOf[Date]
+  //  println(test.getTime)
 
-  contents += tf1
-
-  //  contents += new TextField("DD")
-  //  contents += new Label(".")
-  //  contents += new TextField("MM")
-  //  contents += new Label(".")
-  //  contents += new TextField("YYYY")
-  //  contents += new Label("-")
-  //  contents += new TextField("HH")
-  //  contents += new Label(":")
-  //  contents += new TextField("MM")
-  //  contents += new Label(":")
-  //  contents += new TextField("SS")
+  contents += formTextfield
 }

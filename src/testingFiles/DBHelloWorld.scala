@@ -27,16 +27,17 @@ object DBHelloWorld extends App {
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
   // Create the Akka system
- // val system = ActorSystem("DBSystem")
+  // val system = ActorSystem("DBSystem")
   system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
   Thread.sleep(1500)
-  
+
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
   Thread.sleep(15000)
+
   //system.shutdown()
 
   class HelloWorldActor extends Actor {
@@ -44,7 +45,8 @@ object DBHelloWorld extends App {
     var fileActor: ActorRef = null
 
     // Getting the Database Actors
-    override def preStart = agent ! DatabaseActors; naoActor ! Connect
+    override def preStart = agent ! DatabaseActors;
+    naoActor ! Connect
     Thread.sleep(2000)
     var noresponseA: ActorRef = self
 
@@ -74,7 +76,7 @@ object DBHelloWorld extends App {
       case ReceivedCommand(commandList) =>
 
         commandList match {
-          case Left(callList) => for (elem <- callList) noresponseA ! elem
+          //          case Left(callList) => for (elem <- callList) noresponseA ! elem
           case Right(errMsg) => println(errMsg)
         }
     }

@@ -70,7 +70,7 @@ class DBAccessCommand extends Actor {
         val only = commands.filter(_.isInstanceOf[Call])
         val onlyCommands: List[Call] = only.foldLeft(List[Call]())((list, any) => list ++ List(any.asInstanceOf[Call]))
         // TODO
-        origin ! ReceivedCommand(Left(onlyCommands))
+        //        origin ! ReceivedCommand(Left(onlyCommands))
       }
 
       case Failure(list) => {
