@@ -16,12 +16,12 @@ object DBHelloWorld extends App {
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
+  Thread.sleep(1500)
+  
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
-
-  Thread.sleep(5000)
+  Thread.sleep(15000)
   system.shutdown()
-
 
   class HelloWorldActor extends Actor {
     var commandActor: ActorRef = null
@@ -33,6 +33,7 @@ object DBHelloWorld extends App {
     def receive = {
       // receiving the SerialNumbers (names) for each robot
       case ReceivedDatabaseActors(cActor, fActor) => {
+        println("received Actors ")
         commandActor = cActor
         fileActor = fActor
         sender ! RobotSerialNumbers
@@ -40,16 +41,19 @@ object DBHelloWorld extends App {
 
       // receiving the SerialNumbers and starting the Test
       case ReceivedRobotSerialNumbers(rsnAry) => {
+        println("Received serials ")
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
 
         commandActor ! SearchCommand(rsnAry(1), commandList = Option(List("TextToSpeech")))
-        commandActor ! SearchCommand(rsnAry(1), tagList = Option(List("Datenbank")))
+        commandActor ! SearchCommand(rsnAry(1), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
       }
 
-      case ReceivedCommand(commandList) => commandList match {
-        case Left(callList) => for (elem <- callList) println(elem)
-        case Right(errMsg) => println(errMsg)
-      }
+      case ReceivedCommand(commandList) =>
+        println("Receive : " + commandList)
+        commandList match {
+          case Left(callList) => for (elem <- callList) println(elem)
+          case Right(errMsg) => println(errMsg)
+        }
     }
   }
 

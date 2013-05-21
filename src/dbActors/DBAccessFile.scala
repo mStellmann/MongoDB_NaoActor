@@ -23,13 +23,13 @@ class DBAccessFile extends Actor {
     case SavePicture(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, imageFile, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
-    case SearchAudioFile(robotSerialNumber: String, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
+    case SearchAudioFile(robotSerialNumber: String, collections, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
-    case SearchVideoFile(robotSerialNumber: String, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
+    case SearchVideoFile(robotSerialNumber: String, collections, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
-    case SearchPicture(robotSerialNumber, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
+    case SearchPicture(collections, robotSerialNumber, timestampStart, timestampEnd, filename, filetyp, tagList) => ??? // TODO
 
     // TODO - ScalaDoc
     case ReceivedFile(fileList, origin) => ??? // TODO

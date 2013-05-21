@@ -1,9 +1,9 @@
 package dbActors
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{ ActorRef, Actor }
 import messages.userMessages._
-import messages.internalMessages.{SaveCommand, Save, SearchData, ReceivedData}
-import scala.util.{Try, Success, Failure}
+import messages.internalMessages.{ Save, SearchData, ReceivedData }
+import scala.util.{ Try, Success, Failure }
 import messages.userMessages.SaveCommand
 import naogateway.value.Hawactormsg.MixedValue
 import com.mongodb.casbah.Imports._
@@ -14,7 +14,6 @@ import messages.internalMessages.Save
 import scala.util.Success
 import messages.internalMessages.ReceivedData
 import messages.userMessages.SaveCommand
-import messages.internalMessages.SaveCommand
 import naogateway.value.NaoMessages.Call
 
 /**
@@ -24,37 +23,39 @@ import naogateway.value.NaoMessages.Call
 // TODO - Gregstar
 class DBAccessCommand extends Actor {
 
-
-  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
+//  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
+   val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
+  println("dbacces " + mongoDBActor)
+ 
   val agent = context.actorSelection("/user/DBConfigurator/DBAgent")
-
 
   def receive = {
     // TODO - ScalaDoc
     //case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, tagList)
     case SaveCommand(robotSerialNumber, timestamp, call, tagList) => {
-
+    	println("SaveCommand in DB Access")
+      
       val mongoDBDoc = Map(
         "callModule" -> List(call.module.name.toString),
         "callMethod" -> List(call.method.name.toString),
         "callArgs" -> unpackMixedVals(call.parameters))
 
+      val content = Map("tags" -> tagList)
+
       mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, mongoDBDoc ++ content)
     }
 
-
     // TODO - ScalaDoc
     // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
-    case SearchCommand(robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => mongoDBActor ! SearchData(robotSerialNumber, timestampStart, timestampEnd, Option(Map("commandList" -> commandList.get, "tagList" -> tagList.get)), sender)// TODO
+    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => 
+      mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, Option(Map("commandList" -> commandList.getOrElse(Nil), "tagList" -> tagList.getOrElse(Nil))), sender) // TODO
 
     // TODO - ScalaDoc
-      //eigents hinzugefuegt und auch wieder entfaernt, muss nochmal diskutiert werden
-   // case SearchData(robotSerialNumber, timestampStart, timestampEnd, content, origin)  => ??? // TODO
-
+    //eigents hinzugefuegt und auch wieder entfaernt, muss nochmal diskutiert werden
+    // case SearchData(robotSerialNumber, timestampStart, timestampEnd, content, origin)  => ??? // TODO
 
     // TODO - ScalaDoc
-    case ReceivedData(dataList, origin) => dataList match{
-
+    case ReceivedData(dataList, origin) => dataList match {
 
       case Success(list) => {
         val commands = for (entry <- list) yield {
@@ -63,20 +64,19 @@ class DBAccessCommand extends Actor {
             val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
             val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
             Call(callModule, callMethod, callArgs)
-
           }
         }
-        origin ! ReceivedCommand(Either(Left(commands)))
+        val only = commands.filter(_.isInstanceOf[Call])
+        val onlyCommands:List[Call] = only.foldLeft(List[Call]()) ((list, any) => list ++ List(any.asInstanceOf[Call]))
+        origin ! ReceivedCommand(Left(onlyCommands))
       }
 
       case Failure(list) => {
-                              origin ! ReceivedCommand(Either(Right("Error")))
+        origin ! ReceivedCommand(Right("Error"))
       }
     } // TODO
 
-
   }
-
 
   def unpackMixedVals(list: List[MixedValue]): List[Any] = {
     for (arg <- list) yield {

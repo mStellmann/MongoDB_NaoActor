@@ -37,7 +37,7 @@ object MongoDBActorTest extends App {
   //  val command = Call('ALTextToSpeech, 'say, List("Stehen bleiben!", true, 1, 1F, 3.asInstanceOf[Byte], Seq[Any](1, 2F)))
   val command = Call('ALTextToSpeech, 'say, List("b"))
   println("Saved Command: " + command);
-  mongoDB ! SaveCommand("movs", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
+  mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
 
   //Read a File and get its ByteArray
   val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
@@ -77,7 +77,7 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-        mongoDB ! SearchData("nila", None, Some(23479815), Some(Map("tags" -> List("a", "b"))), self)
+        mongoDB ! SearchData(None, "nila", None, Some(23479815), Some(Map("tags" -> List("a", "b"))), self)
 
         //TODO Get a File
       }

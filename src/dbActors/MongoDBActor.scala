@@ -20,6 +20,8 @@ import naogateway.value.Hawactormsg.MixedValue
  * It is a basic interface for saving and finding objects in the database.
  */
 class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
+  
+  println("MongoDbActor created")
 
   def receive = {
     case Save(db, robotSerialNumber, timestamp, content) => {
@@ -60,10 +62,10 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
     }
 
     // TODO - collection als Option
-    case SearchData(robotSerialNumber, timestampStart, timestampEnd, content, origin) => {
+    case SearchData(collections, robotSerialNumber, timestampStart, timestampEnd, content, origin) => {
       //TODO search in all dbs
       //println(mongoDBClient.getDatabaseNames)
-      val db = "movs"
+      val db = "ALTextToSpeech"
 
       val mongoCollection = mongoDBClient(db)(robotSerialNumber)
 
@@ -76,7 +78,7 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
       val andQuery = MongoDBObject();
       val andList = List[MongoDBObject](search, tags.asDBObject);
-      andQuery.put("$and", andList);
+      andQuery.put("$or", andList);
 
       val finalSearchRequest = andQuery
       println("Searching For:" + finalSearchRequest)
@@ -110,6 +112,8 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
     // TODO 
     case SearchFile(robotSerialNumber, timestampStart, timestampEnd, filetyp, content, origin) => ???
+    
+    case x => println("mongoDB got unexpected " + x)
   }
 
   def save(collection: MongoCollection, entry: DBObject) {
