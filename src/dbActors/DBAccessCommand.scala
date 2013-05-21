@@ -65,6 +65,7 @@ class DBAccessCommand extends Actor {
             val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
             Call(callModule, callMethod, callArgs)
           }
+
         }
         val only = commands.filter(_.isInstanceOf[Call])
         val onlyCommands:List[Call] = only.foldLeft(List[Call]()) ((list, any) => list ++ List(any.asInstanceOf[Call]))
