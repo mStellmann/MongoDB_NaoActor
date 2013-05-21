@@ -14,7 +14,7 @@ case class SaveCommand(collection: String, robotSerialNumber: String, timestamp:
 
 case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
 
-case class SearchData(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchData(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
 
 case class SearchFile(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
@@ -58,13 +58,13 @@ case class SavePicture(robotSerialNumber: String, timestamp: Long, filename: Str
 
 //case class SearchMovement(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
 
-case class SearchCommand(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
+case class SearchCommand(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
 
-case class SearchAudioFile(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
+case class SearchAudioFile(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
-case class SearchVideoFile(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
+case class SearchVideoFile(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
-case class SearchPicture(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
+case class SearchPicture(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
 // For the Use-Case-Actors
 //case class ReceivedMovement(movementList: Either[List[Movement], String])

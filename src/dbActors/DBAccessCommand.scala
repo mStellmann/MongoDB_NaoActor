@@ -2,7 +2,7 @@ package dbActors
 
 import akka.actor.{ActorRef, Actor}
 import messages.userMessages._
-import messages.internalMessages.{SearchData, ReceivedData}
+import messages.internalMessages.{Save, SearchData, ReceivedData}
 import scala.util.{Try, Success, Failure}
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
@@ -18,7 +18,7 @@ class DBAccessCommand extends Actor {
 
   def receive = {
     // TODO - ScalaDoc
-    case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! save(call.module.name, robotSerialNumber, timestamp, tagList)
+    case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, tagList)
 
 
 
@@ -34,7 +34,8 @@ class DBAccessCommand extends Actor {
     // TODO - ScalaDoc
     case ReceivedData(dataList, origin) => dataList match{
       case Success(list) => {
-        for(doc <- list) doc.keys.foreach()
+        for(doc <- list) doc.keys.foreach(|elem|
+          origin ! doc.get(elem))
       }
       case Failure(list) => {
 
