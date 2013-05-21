@@ -105,7 +105,7 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       if (docsFound.isEmpty)
         sender ! ReceivedData(Failure(new NoSuchElementException("Nothing Found")), origin)
       else {
-        for (command <- commands if command != ()) sender ! command
+        for (command <- commands if command != ()) //sender ! command
         sender ! ReceivedData(Success(docsFound), origin)
       }
     }
