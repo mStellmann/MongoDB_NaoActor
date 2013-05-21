@@ -70,17 +70,16 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       val start = timestampStart.getOrElse(0L)
       val end = timestampEnd.getOrElse(Long.MaxValue)
       //TODO search forcontent
-      //      val tags = content.getOrElse(Map())
-      //      for((k,v) <- tags)yield MongoDBObject(k $elemMatch v(0))
-      //      val elemmatch = MongoDBObject("tags" -> MongoDBList("gehen")) 
-      //      val search2: MongoDBObject = { { ("time" ) } }
-      //      val ser = MongoDBObject("$elemMatch" -> elemmatch)
-      //      println(ser)
+      val tags = content.getOrElse(Map())
 
       val search = { { ("time" $gte start $lte end) } }
 
-      val finalSearchRequest = search //++ tags.asDBObject
-      //      println("Searching For:" + finalSearchRequest)
+      val andQuery = MongoDBObject();
+      val andList = List[MongoDBObject](search, tags.asDBObject);
+      andQuery.put("$and", andList);
+
+      val finalSearchRequest = andQuery
+      println("Searching For:" + finalSearchRequest)
 
       val found = mongoCollection.find(finalSearchRequest)
 
