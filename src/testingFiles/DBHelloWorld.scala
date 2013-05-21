@@ -37,7 +37,7 @@ object DBHelloWorld extends App {
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
   Thread.sleep(15000)
-  system.shutdown()
+  //system.shutdown()
 
   class HelloWorldActor extends Actor {
     var commandActor: ActorRef = null

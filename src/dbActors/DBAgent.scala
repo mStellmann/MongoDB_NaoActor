@@ -11,6 +11,7 @@ import messages.agentMessages._
  */
 class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
   val childCommands = context.actorOf(Props[DBAccessCommand], name = "DBAccessCommand")
+  println(childCommands)
   val childFiles = context.actorOf(Props[DBAccessFile], name = "DBAccessFile")
 
   override def preStart() {
