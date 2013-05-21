@@ -1,9 +1,9 @@
 package dbActors
 
-import akka.actor.{ ActorRef, Actor }
+import akka.actor.{ActorRef, Actor}
 import messages.userMessages._
-import messages.internalMessages.{ Save, SearchData, ReceivedData }
-import scala.util.{ Try, Success, Failure }
+import messages.internalMessages.{Save, SearchData, ReceivedData}
+import scala.util.{Try, Success, Failure}
 import messages.userMessages.SaveCommand
 import naogateway.value.Hawactormsg.MixedValue
 import com.mongodb.casbah.Imports._
@@ -23,18 +23,18 @@ import naogateway.value.NaoMessages.Call
 // TODO - Gregstar
 class DBAccessCommand extends Actor {
 
-//  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
-   val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
+  //  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
+  val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
   println("dbacces " + mongoDBActor)
- 
+
   val agent = context.actorSelection("/user/DBConfigurator/DBAgent")
 
   def receive = {
     // TODO - ScalaDoc
     //case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, tagList)
     case SaveCommand(robotSerialNumber, timestamp, call, tagList) => {
-    	println("SaveCommand in DB Access")
-      
+      println("SaveCommand in DB Access")
+
       val mongoDBDoc = Map(
         "callModule" -> List(call.module.name.toString),
         "callMethod" -> List(call.method.name.toString),
@@ -47,7 +47,7 @@ class DBAccessCommand extends Actor {
 
     // TODO - ScalaDoc
     // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
-    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => 
+    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) =>
       mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, Option(Map("commandList" -> commandList.getOrElse(Nil), "tagList" -> tagList.getOrElse(Nil))), sender) // TODO
 
     // TODO - ScalaDoc
@@ -68,14 +68,15 @@ class DBAccessCommand extends Actor {
 
         }
         val only = commands.filter(_.isInstanceOf[Call])
-        val onlyCommands:List[Call] = only.foldLeft(List[Call]()) ((list, any) => list ++ List(any.asInstanceOf[Call]))
+        val onlyCommands: List[Call] = only.foldLeft(List[Call]())((list, any) => list ++ List(any.asInstanceOf[Call]))
+        // TODO
         origin ! ReceivedCommand(Left(onlyCommands))
       }
 
       case Failure(list) => {
         origin ! ReceivedCommand(Right("Error"))
       }
-    } // TODO
+    }
 
   }
 
