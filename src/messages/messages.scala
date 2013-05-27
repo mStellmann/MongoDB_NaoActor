@@ -68,7 +68,8 @@ case class SearchPicture(robotSerialNumber: String, collection: Option[String] =
 // For the Use-Case-Actors
 //case class ReceivedMovement(movementList: Either[List[Movement], String])
 
-case class ReceivedCommand(commandTimestampTagList: Either[(List[Call], (Long, Long), List[String]), String])
+//case class ReceivedCommand(commandTimestampTagList: Either[(List[Call], List[Long], List[String]), String])
+case class ReceivedCommand(commandTimestampTagList: Either[(List[(Call,Long,List[String])]), String])
 
 case class ReceivedAudioFile(audioFileList: Either[List[AudioFile], String])
 
