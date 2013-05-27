@@ -15,6 +15,7 @@ import scala.util.Success
 import messages.internalMessages.ReceivedData
 import messages.userMessages.SaveCommand
 import naogateway.value.NaoMessages.Call
+import scala.runtime.RichLong
 
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
@@ -63,13 +64,15 @@ class DBAccessCommand extends Actor {
             val callModule: Symbol = Symbol.apply(entry("callModule")(0).asInstanceOf[String])
             val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
             val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
-            (Call(callModule, callMethod, callArgs), entry("time").get(0), entry("tags"))
+            (Call(callModule, callMethod, callArgs), entry("time")(0), entry("tags"))
           }
 
         }
         val only = commands.filter(_.isInstanceOf[(Call,Any,Any)])
-//        val onlyCommands:List[(Call,Long,List[String])] = only.foldLeft(List[(Call,Long,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[Long],tags.asInstanceOf[List[String]])))
-//        origin ! ReceivedCommand(Left(onlyCommands))
+       // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(List[(Call,RichLong,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
+       // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(Nil) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
+        val onlyCommands:List[(Call,Long,List[String])] = for((call,time,tags)<-only) yield { (call.asInstanceOf[Call],time.asInstanceOf[Long],tags.asInstanceOf[List[String]]) }
+        origin ! ReceivedCommand(Left(onlyCommands))
       }
 
       case Failure(list) => {
