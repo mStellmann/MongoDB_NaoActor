@@ -20,7 +20,10 @@ class SwingGUI extends MainFrame {
   val panel_cBoxChooseRobot = new FlowPanel()
   val cBox_commands = new ComboBox(commandMap.keys.toList)
   val button_search = new Button("Los, suchen!")
-  val button_sendToNao = new Button("Back to NAO")
+  val button_sendToNao = new Button("Back to NAO") {
+    enabled = false
+  }
+
   // TODO Einbauen..
   val cBox_starttime = new CheckBox
   val cBox_endtime = new CheckBox

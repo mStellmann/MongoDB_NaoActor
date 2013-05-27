@@ -11,7 +11,10 @@ object DBGui extends App {
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
+  // theoretisch über config
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
+  //  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+
 
   system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
 

@@ -13,7 +13,7 @@ case class SaveCommand(collection: String, robotSerialNumber: String, timestamp:
 
 case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
 
-case class SearchData(collection: Option[String], robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
+case class SearchData(collection: Option[String], robotSerialNumber: Option[String], timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
 
 case class SearchFile(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
 
@@ -57,7 +57,7 @@ case class SavePicture(robotSerialNumber: String, timestamp: Long, filename: Str
 
 //case class SearchMovement(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
 
-case class SearchCommand(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
+case class SearchCommand(robotSerialNumber: Option[String], collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
 
 case class SearchAudioFile(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
@@ -69,7 +69,7 @@ case class SearchPicture(robotSerialNumber: String, collection: Option[String] =
 //case class ReceivedMovement(movementList: Either[List[Movement], String])
 
 //case class ReceivedCommand(commandTimestampTagList: Either[(List[Call], List[Long], List[String]), String])
-case class ReceivedCommand(commandTimestampTagList: Either[(List[(Call,Long,List[String])]), String])
+case class ReceivedCommand(commandTimestampTagList: Either[(List[(Call, Long, List[String])]), String])
 
 case class ReceivedAudioFile(audioFileList: Either[List[AudioFile], String])
 

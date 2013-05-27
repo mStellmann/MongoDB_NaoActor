@@ -3,7 +3,7 @@ package gui
 import akka.actor.{ActorRef, Actor, ActorSelection}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
 import scala.swing.ComboBox
-import scala.swing.event.ButtonClicked
+import scala.swing.event.{SelectionChanged, ListSelectionChanged, ButtonClicked}
 import messages.userMessages.{ReceivedCommand, SearchCommand}
 
 import naogateway.value.NaoMessages._
@@ -25,24 +25,40 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
   var commandHistoryMap: Map[String, Call] = Map[String, Call]()
 
   // listener
-  gui.listenTo(gui.button_search, gui.button_sendToNao, gui.cBox_starttime, gui.cBox_endtime)
+  gui.listenTo(gui.button_search, gui.button_sendToNao, gui.cBox_starttime, gui.cBox_endtime, gui.list_commandList.selection)
 
   gui.reactions += {
-    case ButtonClicked(gui.button_search) => commandActor ! SearchCommand(cBox_Robots.selection.item)
+    case ButtonClicked(gui.button_search) => {
+      val rsnr = if (cBox_Robots.selection.item == "ALL") None else Some(cBox_Robots.selection.item)
+      val command = if (gui.cBox_commands.selection.item == "All Commands") None else Some(gui.cBox_commands.selection.item)
+      //      val tStart = if(gui.cBox_starttime.selected)
+
+
+      //      commandActor ! SearchCommand(cBox_Robots.selection.item)
+    }
 
     case ButtonClicked(gui.button_sendToNao) => {
-      val selectedItem: String = gui.list_commandList.selection.items(0).asInstanceOf[String]
-      noResponse ! commandHistoryMap(selectedItem)
+      for (elem <- gui.list_commandList.selection.items)
+        noResponse ! commandHistoryMap(elem.asInstanceOf[String])
+
+
     }
 
     case ButtonClicked(gui.cBox_starttime) => gui.cBox_starttime.selected match {
       case true => gui.ftxtField_starttime.enabled = true; gui.ftxtField_starttime.revalidate();
       case false => gui.ftxtField_starttime.enabled = false; gui.ftxtField_starttime.revalidate();
     }
+
     case ButtonClicked(gui.cBox_endtime) => gui.cBox_endtime.selected match {
       case true => gui.ftxtField_endtime.enabled = true; gui.ftxtField_endtime.revalidate();
       case false => gui.ftxtField_endtime.enabled = false; gui.ftxtField_endtime.revalidate();
     }
+
+    case SelectionChanged(gui.list_commandList) => gui.list_commandList.selection.items.isEmpty match {
+      case true => gui.button_sendToNao.enabled = false
+      case false => gui.button_sendToNao.enabled = true
+    }
+
   }
 
 
