@@ -3,10 +3,10 @@ package dbActors
 import akka.actor.Actor
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
-import messages.internalMessages.{ Save, SaveCommand, SaveFile }
-import messages.internalMessages.{ SearchData, SearchFile }
-import messages.internalMessages.{ ReceivedData, ReceivedFile }
-import scala.util.{ Try, Success, Failure }
+import messages.internalMessages.{Save, SaveCommand, SaveFile}
+import messages.internalMessages.{SearchData, SearchFile}
+import messages.internalMessages.{ReceivedData, ReceivedFile}
+import scala.util.{Try, Success, Failure}
 import com.mongodb.casbah.commons.MongoDBObject
 import naogateway.value.Hawactormsg
 import naogateway.value.NaoMessages._
@@ -72,15 +72,19 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
         val start = timestampStart.getOrElse(0L)
         val end = timestampEnd.getOrElse(Long.MaxValue)
-        val searchTime = { { ("time" $gte start $lte end) } }
+        val searchTime = {
+          {
+            ("time" $gte start $lte end)
+          }
+        }
 
         val tags = content.getOrElse(Map())
 
-        val elemTags = for (entry <- tags) yield  MongoDBObject(entry._1 -> MongoDBObject("$in" -> entry._2))
+        val elemTags = for (entry <- tags) yield MongoDBObject(entry._1 -> MongoDBObject("$in" -> entry._2))
 
         val andQuery = MongoDBObject();
         val andList = List[MongoDBObject](searchTime) ++ elemTags //tags.asDBObject);
-        andQuery.put("$and", andList);
+        andQuery.put("$or", andList);
 
         val finalSearchRequest = andQuery
         println("Searching For:" + finalSearchRequest + " in " + db)
@@ -94,8 +98,8 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
         document <- found
       } yield (for {
         //TODO if list else lassen keien forcompr
-        (key, value) <- document if (key != "_id" && value.isInstanceOf[BasicDBList])
-      } yield ((key, value.asInstanceOf[BasicDBList].toList))).toMap[String, List[Any]]).toList
+          (key, value) <- document if (key != "_id" && value.isInstanceOf[BasicDBList])
+        } yield ((key, value.asInstanceOf[BasicDBList].toList))).toMap[String, List[Any]]).toList
 
       //TODO in DB Access
       val commands = for (entry <- docsFound) yield {
@@ -110,7 +114,7 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       if (docsFound.isEmpty)
         sender ! ReceivedData(Failure(new NoSuchElementException("Nothing Found")), origin)
       else {
-        for (command <- commands if command != ()) println(command) //sender ! command
+        //        for (command <- commands if command != ()) println(command) //sender ! command
         sender ! ReceivedData(Success(docsFound), origin)
       }
     }

@@ -16,7 +16,7 @@ object RemoteTest extends App {
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  //  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+  //    val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
 
   system.actorOf(Props[MyResponseTestActor])

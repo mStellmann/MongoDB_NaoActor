@@ -1,9 +1,9 @@
 package dbActors
 
-import akka.actor.{ ActorRef, Actor }
+import akka.actor.{ActorRef, Actor}
 import messages.userMessages._
-import messages.internalMessages.{ Save, SearchData, ReceivedData }
-import scala.util.{ Try, Success, Failure }
+import messages.internalMessages.{Save, SearchData, ReceivedData}
+import scala.util.{Try, Success, Failure}
 import messages.userMessages.SaveCommand
 import naogateway.value.Hawactormsg.MixedValue
 import com.mongodb.casbah.Imports._
@@ -24,18 +24,18 @@ import scala.runtime.RichLong
 // TODO - Gregstar
 class DBAccessCommand extends Actor {
 
-//  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
-   val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
+  //  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
+  val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
   println("dbacces " + mongoDBActor)
- 
+
   val agent = context.actorSelection("/user/DBConfigurator/DBAgent")
 
   def receive = {
     // TODO - ScalaDoc
     //case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, tagList)
     case SaveCommand(robotSerialNumber, timestamp, call, tagList) => {
-    	println("SaveCommand in DB Access")
-      
+      println("SaveCommand in DB Access")
+
       val mongoDBDoc = Map(
         "callModule" -> List(call.module.name.toString),
         "callMethod" -> List(call.method.name.toString),
@@ -48,8 +48,8 @@ class DBAccessCommand extends Actor {
 
     // TODO - ScalaDoc
     // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
-    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) => 
-      mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, Option(Map("commandList" -> commandList.getOrElse(Nil), "tagList" -> tagList.getOrElse(Nil))), sender) // TODO
+    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) =>
+      mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, Option(Map("tags" -> tagList.getOrElse(Nil))), sender) // TODO
 
     // TODO - ScalaDoc
     //eigents hinzugefuegt und auch wieder entfaernt, muss nochmal diskutiert werden
@@ -68,10 +68,12 @@ class DBAccessCommand extends Actor {
           }
 
         }
-        val only = commands.filter(_.isInstanceOf[(Call,Any,Any)])
-       // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(List[(Call,RichLong,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
-       // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(Nil) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
-        val onlyCommands:List[(Call,Long,List[String])] = for((call,time,tags)<-only) yield { (call.asInstanceOf[Call],time.asInstanceOf[Long],tags.asInstanceOf[List[String]]) }
+        val only = commands.filter(_.isInstanceOf[(Call, Any, Any)])
+        // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(List[(Call,RichLong,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
+        // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(Nil) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
+        val onlyCommands: List[(Call, Long, List[String])] = for ((call, time, tags) <- only) yield {
+          (call.asInstanceOf[Call], time.asInstanceOf[Long], tags.asInstanceOf[List[String]])
+        }
         origin ! ReceivedCommand(Left(onlyCommands))
       }
 
