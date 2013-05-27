@@ -32,11 +32,15 @@ object TestVerbindung extends App {
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  //val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+  // für Start auf einem Rechner nötig
+  val configurator = system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
 
 
-  val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
+  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
+
+  val agent = system.actorFor("/user/DBConfigurator/DBAgent")
+   println(agent)
   Thread.sleep(1500)
 
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
@@ -51,13 +55,14 @@ object TestVerbindung extends App {
 
     // Getting the Database Actors
     override def preStart = agent ! DatabaseActors //; naoActor ! Connect
+    println("TestVerbindung -preStart")
     Thread.sleep(2000)
     var noresponseA: ActorRef = self
 
     def receive = {
       // receiving the SerialNumbers (names) for each robot
       case ReceivedDatabaseActors(cActor, fActor) => {
-
+         println("ReceivedDatabaseActors")
         commandActor = cActor
         fileActor = fActor
         sender ! RobotSerialNumbers
@@ -65,10 +70,11 @@ object TestVerbindung extends App {
 
       // receiving the SerialNumbers and starting the Test
       case ReceivedRobotSerialNumbers(rsnAry) => {
-
+        println("ReceivedRobotSerialNumbers")
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
-
-        commandActor ! SearchCommand(rsnAry(1), commandList = Option(List("TextToSpeech")))
+        println("Commando gespeichert")
+        commandActor ! SearchCommand(rsnAry(1), commandList = Option(List("ALTextToSpeech")))
+        println("Commando gesucht")
         commandActor ! SearchCommand(rsnAry(1), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
       }
 
@@ -78,16 +84,16 @@ object TestVerbindung extends App {
 
 
       case ReceivedCommand(commandList) =>
+        println("ReceivedCommand- Commando empfangen")
+        commandList match {
+                      case Left(callList) => for (elem <- callList) {
+                        println(elem)
+                        noresponseA ! elem._1
+                      }
 
-    //    commandList match {
-          //            case Left(callList) => for (elem <- callList) {
-          //              println(elem)
-          //              //noresponseA ! elem
-          //            }
+          case Right(errMsg) => println(errMsg)
 
-    //      case Right(errMsg) => println(errMsg)
-    //      case
-     //   }
+        }
     }
   }
 

@@ -12,6 +12,7 @@ import java.io.FileInputStream
  */
 // TODO - Config für MongoDB einlesen..
 class DBConfigurator extends Actor {
+  println("DBConfigurator - erstellt")
   val cfgReader = new Properties()
   cfgReader.load(new FileInputStream("configs/DBActorSystemConfig.cfg"))
   val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
@@ -20,8 +21,10 @@ class DBConfigurator extends Actor {
   val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "MongoDBActor")
   // creating and starting the DBAgent
   val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
-
+  println("Configurator println(childAgent)")
+  println(childAgent)
   override def preStart() {
+    println("DBConfigurator - preStart")
     context.watch(childMongo)
     context.watch(childAgent)
   }

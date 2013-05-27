@@ -16,10 +16,11 @@ object SystemStart extends App {
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+  //val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
   // Create the Akka system
   // val system = ActorSystem("DBSystem")
-  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  val configurator = system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  println(configurator)
 
 }
