@@ -24,7 +24,7 @@ object DBHelloWorld extends App {
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
 
   // Create the Akka system
   // val system = ActorSystem("DBSystem")
@@ -64,8 +64,8 @@ object DBHelloWorld extends App {
 
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
 
-        commandActor ! SearchCommand(rsnAry(1), commandList = Option(List("TextToSpeech")))
-        commandActor ! SearchCommand(rsnAry(1), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
+        commandActor ! SearchCommand(Some(rsnAry(1)))
+        commandActor ! SearchCommand(Some(rsnAry(1)), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
       }
 
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {

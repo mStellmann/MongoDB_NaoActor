@@ -48,8 +48,9 @@ class DBAccessCommand extends Actor {
 
     // TODO - ScalaDoc
     // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
-    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, commandList, tagList) =>
-      mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, Option(Map("tags" -> tagList.getOrElse(Nil))), sender) // TODO
+    case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, tagList) =>
+      val searchMap = if(tagList.isDefined) Some(Map("tags" -> tagList.get))  else None
+      mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, searchMap, sender) // TODO
 
     // TODO - ScalaDoc
     //eigents hinzugefuegt und auch wieder entfaernt, muss nochmal diskutiert werden

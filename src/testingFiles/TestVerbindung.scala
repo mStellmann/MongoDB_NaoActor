@@ -73,9 +73,9 @@ object TestVerbindung extends App {
         println("ReceivedRobotSerialNumbers")
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
         println("Commando gespeichert")
-        commandActor ! SearchCommand(rsnAry(1), commandList = Option(List("ALTextToSpeech")))
+        commandActor ! SearchCommand(Some(rsnAry(1)))
         println("Commando gesucht")
-        commandActor ! SearchCommand(rsnAry(1), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
+        commandActor ! SearchCommand(Some(rsnAry(1)), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
       }
 
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {

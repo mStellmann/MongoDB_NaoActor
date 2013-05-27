@@ -25,7 +25,7 @@ object MongoDBActorTest extends App {
 //  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
     val system = ActorSystem("DBSystem")
-  val mongoDB = system.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
+  val mongoDB = system.actorOf(Props().withCreator(new MongoDBActor(MongoClient(), Array("Nila", "Hanna"))), name = "mongoDBActor")
   //Find something in the DB
   val findActor = system.actorOf(Props[FindActor], name = "FindActor")
 
@@ -77,7 +77,7 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-        mongoDB ! SearchData(Some("ALTextToSpeech"), "nila", None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
 
         //TODO Get a File
       }

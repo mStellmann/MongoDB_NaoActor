@@ -19,7 +19,7 @@ import naogateway.value.Hawactormsg.MixedValue
  * This actor works as an adapter for the connection and communication with a MongoDB-Database.
  * It is a basic interface for saving and finding objects in the database.
  */
-class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
+class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extends Actor {
 
   println("MongoDbActor created")
 
@@ -65,10 +65,17 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
       val dbToQuery = if (collections.isDefined) List(collections.get) else mongoDBClient.getDatabaseNames.toList
 
+      val robotSerialList = robotSerialNumber match {
+        case None =>  robotNames.toList
+        case Some(id) => List(id)
+      }
+
+
       val foundList = for {
         db <- dbToQuery
+        robotSerial <- robotSerialList
       } yield {
-        val mongoCollection = mongoDBClient(db)(robotSerialNumber)
+        val mongoCollection = mongoDBClient(db)(robotSerial)
 
         val start = timestampStart.getOrElse(0L)
         val end = timestampEnd.getOrElse(Long.MaxValue)
@@ -84,7 +91,7 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
 
         val andQuery = MongoDBObject();
         val andList = List[MongoDBObject](searchTime) ++ elemTags //tags.asDBObject);
-        andQuery.put("$or", andList);
+        andQuery.put("$and", andList);
 
         val finalSearchRequest = andQuery
         println("Searching For:" + finalSearchRequest + " in " + db)

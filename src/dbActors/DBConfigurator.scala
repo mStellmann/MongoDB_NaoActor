@@ -18,7 +18,7 @@ class DBConfigurator extends Actor {
   val robotSNRList = cfgReader.getProperty("robotSerialNumbers").split(",")
 
   // creating and starting the MongoDBActor
-  val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "MongoDBActor")
+  val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient(), robotSNRList)), name = "MongoDBActor")
   // creating and starting the DBAgent
   val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
   println("Configurator println(childAgent)")
