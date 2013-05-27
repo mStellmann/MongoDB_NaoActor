@@ -79,15 +79,15 @@ object TestVerbindung extends App {
 
       case ReceivedCommand(commandList) =>
 
-        commandList match {
+    //    commandList match {
           //            case Left(callList) => for (elem <- callList) {
           //              println(elem)
           //              //noresponseA ! elem
           //            }
 
-          case Right(errMsg) => println(errMsg)
-          case
-        }
+    //      case Right(errMsg) => println(errMsg)
+    //      case
+     //   }
     }
   }
 

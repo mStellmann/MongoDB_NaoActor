@@ -63,13 +63,13 @@ class DBAccessCommand extends Actor {
             val callModule: Symbol = Symbol.apply(entry("callModule")(0).asInstanceOf[String])
             val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
             val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
-            Call(callModule, callMethod, callArgs)
+            (Call(callModule, callMethod, callArgs), entry("time").get(0), entry("tags"))
           }
 
         }
-        val only = commands.filter(_.isInstanceOf[Call])
-        val onlyCommands:List[Call] = only.foldLeft(List[Call]()) ((list, any) => list ++ List(any.asInstanceOf[Call]))
-        origin ! ReceivedCommand(Left(onlyCommands))
+        val only = commands.filter(_.isInstanceOf[(Call,Any,Any)])
+//        val onlyCommands:List[(Call,Long,List[String])] = only.foldLeft(List[(Call,Long,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[Long],tags.asInstanceOf[List[String]])))
+//        origin ! ReceivedCommand(Left(onlyCommands))
       }
 
       case Failure(list) => {
