@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, Actor, ActorSelection}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
 import scala.swing.ComboBox
 import scala.swing.event.{SelectionChanged, ListSelectionChanged, ButtonClicked}
-import messages.userMessages.{ReceivedCommand, SearchCommand}
+import messages.userMessages.{SaveCommand, ReceivedCommand, SearchCommand}
 
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
@@ -29,19 +29,19 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
 
   gui.reactions += {
     case ButtonClicked(gui.button_search) => {
-      val rsnr = if (cBox_Robots.selection.item == "ALL") None else Some(cBox_Robots.selection.item)
-      val command = if (gui.cBox_commands.selection.item == "All Commands") None else Some(gui.cBox_commands.selection.item)
-      //      val tStart = if(gui.cBox_starttime.selected)
+      val rsnr = if (cBox_Robots.selection.item != "ALL") Some(cBox_Robots.selection.item) else None
+      val command = if (gui.cBox_commands.selection.item != "All Commands") Some(gui.commandMap(gui.cBox_commands.selection.item)) else None
+      val tStart = if (gui.cBox_starttime.selected) Some(gui.ftxtField_starttime.peer.getValue().asInstanceOf[Date].getTime) else None
+      val tEnd = if (gui.cBox_endtime.selected) Some(gui.ftxtField_endtime.peer.getValue().asInstanceOf[Date].getTime) else None
+      val tagText = gui.textField_tags.peer.getText.trim.toLowerCase.replaceAll(" ", "")
+      val tags = if (!tagText.isEmpty) Some(tagText.split( """,|;""").toList) else None
 
-
-      //      commandActor ! SearchCommand(cBox_Robots.selection.item)
+      commandActor ! SearchCommand(rsnr, command, tStart, tEnd, tags);
     }
 
     case ButtonClicked(gui.button_sendToNao) => {
       for (elem <- gui.list_commandList.selection.items)
         noResponse ! commandHistoryMap(elem.asInstanceOf[String])
-
-
     }
 
     case ButtonClicked(gui.cBox_starttime) => gui.cBox_starttime.selected match {
@@ -73,6 +73,15 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
     case ReceivedDatabaseActors(cActor, fActor) => {
       commandActor = cActor
       fileActor = fActor
+
+      // testingExamples
+      commandActor ! SaveCommand("Nila", System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
+      commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000), Call('ALTextToSpeech, 'say, List("Oder ich muss dich toeten!")), List("Pistole", "Terminator"))
+      commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000 * 2), Call('ALTextToSpeech, 'say, List("oh shit!")), List("Angst"))
+      commandActor ! SaveCommand("Nila", (System.currentTimeMillis() - 86400000), Call('ALTextToSpeech, 'say, List("peng peng!")), List("Kampf", "Action"))
+      commandActor ! SaveCommand("Nila", System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("hallo!")))
+      commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 3 * 86400000), Call('ALTextToSpeech, 'say, List("Weltherrschaft!")), List("Macht"))
+
       sender ! RobotSerialNumbers
     }
 
@@ -101,7 +110,7 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
           }
           commandHistoryMap = mutableMap.toMap
         }
-        case Right(errMsg) => println(errMsg)
+        case Right(errMsg) => gui.list_commandList.listData = List[String]()
       }
   }
 }

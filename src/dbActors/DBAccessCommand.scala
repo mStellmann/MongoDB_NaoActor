@@ -41,7 +41,7 @@ class DBAccessCommand extends Actor {
         "callMethod" -> List(call.method.name.toString),
         "callArgs" -> unpackMixedVals(call.parameters))
 
-      val content = Map("tags" -> tagList)
+      val content = Map("tags" -> (for (tag <- tagList) yield tag.toLowerCase()).toList)
 
       mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, mongoDBDoc ++ content)
     }
@@ -49,7 +49,7 @@ class DBAccessCommand extends Actor {
     // TODO - ScalaDoc
     // Notiz: Muss geprueft werden ob ein None richtig erstellt wird - im content parameter
     case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, tagList) =>
-      val searchMap = if(tagList.isDefined) Some(Map("tags" -> tagList.get))  else None
+      val searchMap = if (tagList.isDefined) Some(Map("tags" -> tagList.get)) else None
       mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, searchMap, sender) // TODO
 
     // TODO - ScalaDoc

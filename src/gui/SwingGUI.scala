@@ -27,7 +27,12 @@ class SwingGUI extends MainFrame {
   // TODO Einbauen..
   val cBox_starttime = new CheckBox
   val cBox_endtime = new CheckBox
-  val textField_tags = new TextField
+  val textField_tags = new TextField {
+    preferredSize = new Dimension(300, 18)
+
+    minimumSize = new Dimension(300, 18)
+    maximumSize = new Dimension(300, 18)
+  }
 
 
   val ftxtField_starttime = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"))
@@ -84,13 +89,3 @@ class SwingGUI extends MainFrame {
 
   contents = mainPanel
 }
-
-
-//class DatePanel extends FlowPanel {
-//
-//
-//  //  val test = tf1.peer.getValue().asInstanceOf[Date]
-//  //  println(test.getTime)
-//
-//  contents += formTextfield
-//}
