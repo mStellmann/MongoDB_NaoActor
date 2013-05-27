@@ -20,7 +20,7 @@ import naogateway.value.Hawactormsg.MixedValue
  * It is a basic interface for saving and finding objects in the database.
  */
 class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
-  
+
   println("MongoDbActor created")
 
   def receive = {
@@ -61,31 +61,36 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       gfsFile.save
     }
 
-    // TODO - collection als Option
     case SearchData(collections, robotSerialNumber, timestampStart, timestampEnd, content, origin) => {
-      //TODO search in all dbs
-      //println(mongoDBClient.getDatabaseNames)
-      val db = "ALTextToSpeech"
 
-      val mongoCollection = mongoDBClient(db)(robotSerialNumber)
+      val dbToQuery = if (collections.isDefined) List(collections.get) else mongoDBClient.getDatabaseNames.toList
 
-      val start = timestampStart.getOrElse(0L)
-      val end = timestampEnd.getOrElse(Long.MaxValue)
-      //TODO search forcontent
-      val tags = content.getOrElse(Map())
+      val foundList = for {
+        db <- dbToQuery
+      } yield {
+        val mongoCollection = mongoDBClient(db)(robotSerialNumber)
 
-      val search = { { ("time" $gte start $lte end) } }
+        val start = timestampStart.getOrElse(0L)
+        val end = timestampEnd.getOrElse(Long.MaxValue)
+        val searchTime = { { ("time" $gte start $lte end) } }
 
-      val andQuery = MongoDBObject();
-      val andList = List[MongoDBObject](search, tags.asDBObject);
-      andQuery.put("$or", andList);
+        val tags = content.getOrElse(Map())
 
-      val finalSearchRequest = andQuery
-      println("Searching For:" + finalSearchRequest)
+        val elemTags = for (entry <- tags) yield  MongoDBObject(entry._1 -> MongoDBObject("$in" -> entry._2))
 
-      val found = mongoCollection.find(finalSearchRequest)
+        val andQuery = MongoDBObject();
+        val andList = List[MongoDBObject](searchTime) ++ elemTags //tags.asDBObject);
+        andQuery.put("$and", andList);
+
+        val finalSearchRequest = andQuery
+        println("Searching For:" + finalSearchRequest + " in " + db)
+
+        val found = mongoCollection.find(finalSearchRequest)
+        found
+      }
 
       val docsFound = (for {
+        found <- foundList
         document <- found
       } yield (for {
         //TODO if list else lassen keien forcompr
@@ -105,14 +110,14 @@ class MongoDBActor(mongoDBClient: MongoClient) extends Actor {
       if (docsFound.isEmpty)
         sender ! ReceivedData(Failure(new NoSuchElementException("Nothing Found")), origin)
       else {
-        for (command <- commands if command != ()) //sender ! command
+        for (command <- commands if command != ()) println(command) //sender ! command
         sender ! ReceivedData(Success(docsFound), origin)
       }
     }
 
     // TODO 
     case SearchFile(robotSerialNumber, timestampStart, timestampEnd, filetyp, content, origin) => ???
-    
+
     case x => println("mongoDB got unexpected " + x)
   }
 

@@ -20,11 +20,11 @@ object MongoDBActorTest extends App {
   import naogateway.value.NaoMessages.Conversions._
   import naogateway.value.NaoVisionMessages._
   val config = ConfigFactory.load()
-  val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
+//  val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+//  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
-  //  val system = ActorSystem("DBSystem")
+    val system = ActorSystem("DBSystem")
   val mongoDB = system.actorOf(Props().withCreator(new MongoDBActor(MongoClient())), name = "mongoDBActor")
   //Find something in the DB
   val findActor = system.actorOf(Props[FindActor], name = "FindActor")
@@ -40,14 +40,14 @@ object MongoDBActorTest extends App {
   mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
 
   //Read a File and get its ByteArray
-  val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
-  val in = new FileInputStream(file)
-  val bytes = new Array[Byte](file.length.toInt)
-  in.read(bytes)
-  in.close()
+//  val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
+//  val in = new FileInputStream(file)
+//  val bytes = new Array[Byte](file.length.toInt)
+//  in.read(bytes)
+//  in.close()
 
   //Save a file
-  mongoDB ! SaveFile("filetest", "ALL", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
+//  mongoDB ! SaveFile("filetest", "ALL", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
 
   //Let DB work
   Thread.sleep(1000)
@@ -57,7 +57,7 @@ object MongoDBActorTest extends App {
 
   class FindActor extends Actor {
 
-    override def preStart = naoActor ! Connect
+//    override def preStart = naoActor ! Connect
 
     var noresponseA: ActorRef = self
     //    Thread.sleep(2000)
@@ -68,7 +68,7 @@ object MongoDBActorTest extends App {
         //TODO von DB to Nao
         if (noresponseA != self) {
           println("Call Nao " + x)
-          noresponseA ! x
+//          noresponseA ! x
         }
       }
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
@@ -77,7 +77,7 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-        mongoDB ! SearchData(None, "nila", None, Some(23479815), Some(Map("tags" -> List("a", "b"))), self)
+        mongoDB ! SearchData(Some("ALTextToSpeech"), "nila", None, Some(23479815), Some(Map("tags" -> List("a"))), self)
 
         //TODO Get a File
       }
