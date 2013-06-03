@@ -3,9 +3,7 @@ package dbActors
 import akka.actor.Actor
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
-import messages.internalMessages.{ Save, SaveCommand, SaveFile }
-import messages.internalMessages.{ SearchData, SearchFile }
-import messages.internalMessages.{ ReceivedData, ReceivedFile }
+import messages.internalMessages._
 import scala.util.{ Try, Success, Failure }
 import com.mongodb.casbah.commons.MongoDBObject
 import naogateway.value.Hawactormsg
@@ -14,6 +12,14 @@ import naogateway.value.NaoMessages.Conversions._
 import scala.collection.mutable.MutableList
 import naogateway.value.Hawactormsg.MixedValue
 import messages.internalMessages.ReceivedFile
+import scala.util.Failure
+import scala.Some
+import messages.internalMessages.SearchData
+import messages.internalMessages.SaveFile
+import messages.internalMessages.SearchFile
+import messages.internalMessages.Save
+import scala.util.Success
+import messages.internalMessages.ReceivedData
 
 // TODO - Max
 /**
@@ -177,7 +183,7 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
         sender ! ReceivedFile(Success(docsFound), origin)
       }
     }
-
+    case GetDataBaseNames(origin)  =>  sender ! DataBaseNamesOrigin(mongoDBClient.getDatabaseNames.toList,origin)
     case x => println("mongoDB got unexpected " + x)
   }
 

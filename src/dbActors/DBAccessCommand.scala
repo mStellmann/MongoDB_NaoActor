@@ -90,6 +90,10 @@ class DBAccessCommand extends Actor {
       case Failure(list) => {
         origin ! ReceivedCommand(Right("Error"))
       }
+
+
+      case GetDataBaseNames => mongoDBActor !  GetDataBaseNames(sender)
+      case DataBaseNamesOrigin(list,origin) => origin ! DataBaseNames(list)
     } // TODO
 //    case ReceivedFile(fileList, origin) => dataList match {
 //

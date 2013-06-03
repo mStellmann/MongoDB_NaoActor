@@ -2,6 +2,7 @@ package dbActors
 
 import akka.actor.{Props, Actor}
 import messages.agentMessages._
+import messages.internalMessages.GetDataBaseNames
 
 /**
  * This actor acts as an agent between the user and our DBActor-System.
@@ -27,6 +28,7 @@ class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
     /**
      * This function returns all serialnumbers to the sender.
      */
+
     case RobotSerialNumbers =>  println("DBAgent preStart - case RobotSerialNumbers") ;sender ! ReceivedRobotSerialNumbers(robotSerialNumberList) ; println("DBAgent preStart - ReceivedRobotSerialNumbers an Sender")
 
     /**
