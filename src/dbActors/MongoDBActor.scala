@@ -123,8 +123,7 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
       val gfsFile = gridfs.createFile(file)
       gfsFile.filename = filename
       gfsFile.contentType = filetyp
-      gfsFile.metaData = metaData
-      //gfsFile.aliases.+=("")
+      gfsFile.metaData = metaData  
       gfsFile.save
     }
 
@@ -133,20 +132,17 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
 
       val start = timestampStart.getOrElse(0L)
       val end = timestampEnd.getOrElse(Long.MaxValue)
-      val searchTime = ("time" $gte start $lte end)
+      val searchTime = "time" $gte start $lte end
 
       val tags = content.getOrElse(Map())
       val elemTags = for (entry <- tags) yield (entry._1 -> MongoDBObject("$in" -> entry._2))
       //TODO search Metadata
       val metadata = elemTags ++ searchTime
-      //      val metadata = elemTags.foldLeft(scala.collection.mutable.Map())((map,meta) => map ++ meta)
 
       val name = filename.getOrElse("")
       val fType = filetyp.getOrElse("")
 
-      //val search = MongoDBObject("filename" -> name, "contentType" -> fType, "metadata" -> metadata)
-
-      val andList = List(MongoDBObject("filename" -> name), MongoDBObject("contentType" -> fType), MongoDBObject("metadata" -> metadata))
+      val andList = List(MongoDBObject("filename" -> name), MongoDBObject("contentType" -> fType), MongoDBObject("metadata" -> content))
       val andQuery = MongoDBObject();
       andQuery.put("$or", andList);
 
@@ -160,25 +156,26 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
         val finalSearchRequest = andQuery
         println("Searching For:" + finalSearchRequest + " in " + db)
 
-         val found = gridfs.find(finalSearchRequest)
-        //val found = gridfs.find(filename.get)
-
+        val found = gridfs.find(finalSearchRequest)
         found
       }
       println(foundList)
-      //      val docsFound = (for {
-      //        found <- foundList
-      //        document <- found
-      //      } yield (for {
-      //        //TODO if list else lassen keien forcompr
-      //        (key, value) <- document if (key != "_id" && value.isInstanceOf[BasicDBList])
-      //      } yield ((key, value.asInstanceOf[BasicDBList].toList))).toMap[String, List[Any]]).toList
-      //
-      //      if (docsFound.isEmpty)
-      //        sender ! ReceivedFile(Failure(new NoSuchElementException("Nothing Found")), origin)
-      //      else {
-      //        sender ! ReceivedFile(Success(docsFound), origin)
-      //      }
+      val docsFound = (for {
+        found <- foundList
+        file <- found
+      } yield (file.getFilename(), file.getContentType(), file.getUploadDate().getTime(),
+        {
+          val inputStream = file.getInputStream()
+          val byteArray = new Array[Byte](file.getLength().toInt)
+          inputStream.read(byteArray)
+          byteArray
+        }))
+
+      if (docsFound.isEmpty)
+        sender ! ReceivedFile(Failure(new NoSuchElementException("Nothing Found")), origin)
+      else {
+        sender ! ReceivedFile(Success(docsFound), origin)
+      }
     }
 
     case x => println("mongoDB got unexpected " + x)

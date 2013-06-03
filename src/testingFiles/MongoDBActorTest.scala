@@ -40,14 +40,14 @@ object MongoDBActorTest extends App {
   //  mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
 
   //Read a File and get its ByteArray
-  //  val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
-  //  val in = new FileInputStream(file)
-  //  val bytes = new Array[Byte](file.length.toInt)
-  //  in.read(bytes)
-  //  in.close()
+//    val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
+//    val in = new FileInputStream(file)
+//    val bytes = new Array[Byte](file.length.toInt)
+//    in.read(bytes)
+//    in.close()
 
   //Save a file
-  //  mongoDB ! SaveFile("filetest", "Nila", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
+//    mongoDB ! SaveFile("filetest", "Nila", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
 
   //Let DB work
   Thread.sleep(1000)
@@ -77,8 +77,8 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-        //        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
-        mongoDB ! SearchFile(Some("filetest"), None, None, None, None, Some("Doku.doc"), Some(Map("tags" -> List("complete"))), self)
+          mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+        mongoDB ! SearchFile(Some("filetest"), None, None, None, None, None, Some(Map("tags" -> List("complete", "awesome"))), self)
 
         //mongoDB ! SearchFile(None, None, None, None, Some("application/msword"), Some("Doku.doc"), None, self)
 
