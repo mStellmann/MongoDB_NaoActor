@@ -82,7 +82,9 @@ class DBAccessCommand extends Actor {
         val onlyCommands: List[(Call, Long, List[String])] = for ((call, time, tags) <- only) yield {
           (call.asInstanceOf[Call], time.asInstanceOf[Long], tags.asInstanceOf[List[String]])
         }
-        origin ! ReceivedCommand(Left(onlyCommands))
+        val sortedOnlyCommands = onlyCommands.sortBy(_._2 )
+
+        origin ! ReceivedCommand(Left(sortedOnlyCommands))
       }
 
       case Failure(list) => {
