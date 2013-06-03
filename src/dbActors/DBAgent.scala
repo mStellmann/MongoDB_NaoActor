@@ -2,7 +2,7 @@ package dbActors
 
 import akka.actor.{Props, Actor}
 import messages.agentMessages._
-import messages.internalMessages.GetDataBaseNames
+import messages.internalMessages.GetDatabaseNamesOrigin
 
 /**
  * This actor acts as an agent between the user and our DBActor-System.

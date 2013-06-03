@@ -183,7 +183,7 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
         sender ! ReceivedFile(Success(docsFound), origin)
       }
     }
-    case GetDataBaseNames(origin)  =>  sender ! DataBaseNamesOrigin(mongoDBClient.getDatabaseNames.toList,origin)
+    case GetDatabaseNamesOrigin(origin)  =>  sender ! DatabaseNamesOrigin(mongoDBClient.getDatabaseNames.toList,origin)
     case x => println("mongoDB got unexpected " + x)
   }
 

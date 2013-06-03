@@ -7,13 +7,13 @@ import akka.actor.ActorRef
 import scala.util.Try
 import naogateway.value.NaoMessages.Call
 
-case class DataBaseNames(databases :List[String])
+case class DatabaseNames(databases :List[String])
 
-case class DataBaseNamesOrigin(databases :List[String], origin :ActorRef)
+case class DatabaseNamesOrigin(databases :List[String], origin :ActorRef)
 
-case object GetDataBaseNames
+case object GetDatabaseNames
 
-case class GetDataBaseNames(origin: ActorRef)
+case class GetDatabaseNamesOrigin(origin: ActorRef)
 
 case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[Any]])
 

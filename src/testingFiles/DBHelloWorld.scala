@@ -17,6 +17,7 @@ import akka.actor.Props
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
 import naogateway.value.NaoVisionMessages._
+import messages.internalMessages.GetDatabaseNames
 
 object DBHelloWorld extends App {
 
@@ -66,6 +67,7 @@ object DBHelloWorld extends App {
 
         commandActor ! SearchCommand(Some(rsnAry(1)))
         commandActor ! SearchCommand(Some(rsnAry(1)), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
+
       }
 
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
@@ -79,6 +81,7 @@ object DBHelloWorld extends App {
           //          case Left(callList) => for (elem <- callList) noresponseA ! elem
           case Right(errMsg) => println(errMsg)
         }
+
     }
   }
 
