@@ -20,34 +20,34 @@ object MongoDBActorTest extends App {
   import naogateway.value.NaoMessages.Conversions._
   import naogateway.value.NaoVisionMessages._
   val config = ConfigFactory.load()
-//  val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
+  //  val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-//  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
+  //  val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
-    val system = ActorSystem("DBSystem")
+  val system = ActorSystem("DBSystem")
   val mongoDB = system.actorOf(Props().withCreator(new MongoDBActor(MongoClient(), Array("Nila", "Hanna"))), name = "mongoDBActor")
   //Find something in the DB
   val findActor = system.actorOf(Props[FindActor], name = "FindActor")
 
   //Save some Random Stuff
-  mongoDB ! Save("movs", "nila", 23479812, Map("forw" -> List(8), "tags" -> List("gehen", "stolpern")))
-  mongoDB ! Save("movs", "nila", 23479813, Map("back" -> List(8, 3.789)))
+  //  mongoDB ! Save("movs", "nila", 23479812, Map("forw" -> List(8), "tags" -> List("gehen", "stolpern")))
+  //  mongoDB ! Save("movs", "nila", 23479813, Map("back" -> List(8, 3.789)))
 
   //Save a Command
   //  val command = Call('ALTextToSpeech, 'say, List("Stehen bleiben!", true, 1, 1F, 3.asInstanceOf[Byte], Seq[Any](1, 2F)))
-  val command = Call('ALTextToSpeech, 'say, List("b"))
-  println("Saved Command: " + command);
-  mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
+  //  val command = Call('ALTextToSpeech, 'say, List("b"))
+  //  println("Saved Command: " + command);
+  //  mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
 
   //Read a File and get its ByteArray
-//  val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
-//  val in = new FileInputStream(file)
-//  val bytes = new Array[Byte](file.length.toInt)
-//  in.read(bytes)
-//  in.close()
+//    val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
+//    val in = new FileInputStream(file)
+//    val bytes = new Array[Byte](file.length.toInt)
+//    in.read(bytes)
+//    in.close()
 
   //Save a file
-//  mongoDB ! SaveFile("filetest", "ALL", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
+//    mongoDB ! SaveFile("filetest", "Nila", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
 
   //Let DB work
   Thread.sleep(1000)
@@ -57,7 +57,7 @@ object MongoDBActorTest extends App {
 
   class FindActor extends Actor {
 
-//    override def preStart = naoActor ! Connect
+    //    override def preStart = naoActor ! Connect
 
     var noresponseA: ActorRef = self
     //    Thread.sleep(2000)
@@ -68,7 +68,7 @@ object MongoDBActorTest extends App {
         //TODO von DB to Nao
         if (noresponseA != self) {
           println("Call Nao " + x)
-//          noresponseA ! x
+          //          noresponseA ! x
         }
       }
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
@@ -77,7 +77,10 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+          mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+        mongoDB ! SearchFile(Some("filetest"), None, None, None, None, None, Some(Map("tags" -> List("complete", "awesome"))), self)
+
+        //mongoDB ! SearchFile(None, None, None, None, Some("application/msword"), Some("Doku.doc"), None, self)
 
         //TODO Get a File
       }
