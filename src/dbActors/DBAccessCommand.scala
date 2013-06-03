@@ -2,20 +2,27 @@ package dbActors
 
 import akka.actor.{ActorRef, Actor}
 import messages.userMessages._
-import messages.internalMessages.{Save, SearchData, ReceivedData}
+import messages.internalMessages._
 import scala.util.{Try, Success, Failure}
 import messages.userMessages.SaveCommand
 import naogateway.value.Hawactormsg.MixedValue
 import com.mongodb.casbah.Imports._
 import scala.util.Failure
 import messages.userMessages.SearchCommand
+import scala.util.Success
+import messages.userMessages.SaveCommand
+import naogateway.value.NaoMessages.Call
+import scala.runtime.RichLong
+import scala.util.Failure
+import scala.Some
+import messages.userMessages.SearchCommand
+import messages.userMessages.ReceivedCommand
 import messages.internalMessages.SearchData
+import naogateway.value.NaoMessages.Call
 import messages.internalMessages.Save
 import scala.util.Success
 import messages.internalMessages.ReceivedData
 import messages.userMessages.SaveCommand
-import naogateway.value.NaoMessages.Call
-import scala.runtime.RichLong
 
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
@@ -82,7 +89,26 @@ class DBAccessCommand extends Actor {
         origin ! ReceivedCommand(Right("Error"))
       }
     } // TODO
-
+//    case ReceivedFile(fileList, origin) => dataList match {
+//
+//      case Success(list) => {
+//        val files = for (entry <- list) yield {
+//          if (entry.contains("")) {
+//
+//
+//          }
+//
+//        }
+//
+//        }
+//        origin ! ReceivedAudioFile(Left(onlyAudioFiles))
+//        origin ! ReceivedVideoFile(Left(onlyVideoFiles))
+//
+//
+//      case Failure(list) => {
+//        //origin ! ReceivedCommand(Right("Error"))
+//      }
+//    }
   }
 
   def unpackMixedVals(list: List[MixedValue]): List[Any] = {

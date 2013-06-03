@@ -7,7 +7,7 @@ import messages.agentMessages._
  * This actor acts as an agent between the user and our DBActor-System.
  * It starts and supervises the communication-actors.
  *
- * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessFile).
+ * The user can request all robotIDs or a specific communication-actor (e.g. DBAccessCommand).
  */
 class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
 
@@ -33,5 +33,6 @@ class DBAgent(robotSerialNumberList: Array[String]) extends Actor {
      * This function returns the requested ActorRefs to the sender.
      */
     case DatabaseActors => println("DBAgent preStart -case DatabaseActors") ; sender ! ReceivedDatabaseActors(childCommands, childFiles)   ; println("DBAgent preStart -ReceivedDatabaseActors an Sender")
+    case x => println("Unexpexted Message Send (DBAgent)")
   }
 }

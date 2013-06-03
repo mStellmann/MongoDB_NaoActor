@@ -1,6 +1,6 @@
 package messages
 
-// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further DatabaseActor) (e.g. DBAccessFile)
+// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further DatabaseActor) (e.g. DBAccessCommand)
 package internalMessages {
 
 import akka.actor.ActorRef

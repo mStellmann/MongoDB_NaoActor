@@ -11,6 +11,9 @@ import messages.userMessages.SearchAudioFile
 /**
  * This Actor provides the functionality to logging and reading files/data from a Nao-Robot.
  */
+
+
+@Deprecated
 class DBAccessFile extends Actor {
   def receive = {
     // TODO - ScalaDoc
