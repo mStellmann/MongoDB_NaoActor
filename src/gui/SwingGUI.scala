@@ -7,6 +7,8 @@ import java.util.Date
 import java.awt.Dimension
 import scala.swing.Dimension
 import scala.collection.mutable.ListBuffer
+import javax.swing.table.{AbstractTableModel, TableRowSorter, DefaultTableModel}
+import javax.swing.JTable
 
 
 class SwingGUI extends MainFrame {
@@ -15,16 +17,13 @@ class SwingGUI extends MainFrame {
   preferredSize = new Dimension(1000, 800)
   resizable = false
 
-  val commandMap = Map("All Commands" -> "None", "Text to Speech" -> "ALTextToSpeech")
-
   val panel_cBoxChooseRobot = new FlowPanel()
-  val cBox_commands = new ComboBox(commandMap.keys.toList)
+  val panel_cBoxCommands = new FlowPanel()
   val button_search = new Button("Los, suchen!")
   val button_sendToNao = new Button("Back to NAO") {
     enabled = false
   }
 
-  // TODO Einbauen..
   val cBox_starttime = new CheckBox
   val cBox_endtime = new CheckBox
   val textField_tags = new TextField {
@@ -34,7 +33,7 @@ class SwingGUI extends MainFrame {
     maximumSize = new Dimension(300, 18)
   }
 
-
+  // ----- Datums-Felder -----
   val ftxtField_starttime = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"))
   ftxtField_starttime.peer.setValue(new Date())
   ftxtField_starttime.enabled = false;
@@ -44,7 +43,7 @@ class SwingGUI extends MainFrame {
 
   val controlPanel = new GridBagPanel {
     add(panel_cBoxChooseRobot, (0, 0))
-    add(cBox_commands, (0, 1))
+    add(panel_cBoxCommands, (0, 1))
     add(cBox_starttime, (1, 0))
     add(cBox_endtime, (1, 1))
     add(new Label("Choose StartTime"), (2, 0))
@@ -59,14 +58,17 @@ class SwingGUI extends MainFrame {
     add(textField_tags, (1, 2))
   }
 
-  //  val list_commandList = new ListView(List[String]())
-  val list_commandList = new ListView[String]() {
-    listData = ListBuffer()
+  val tableModel = new MyTableModel(new Array[Array[AnyRef]](0), Array[AnyRef]("Command", "Content", "Timestamp", "Tags"))
+
+  val table_commandList = new Table() {
+    model = tableModel
+    selection.intervalMode = Table.IntervalMode.MultiInterval
   }
 
 
-  val scrollPane_CommandList = new ScrollPane()
-  scrollPane_CommandList.contents = list_commandList
+  val scrollPane_CommandList = new ScrollPane {
+    contents = table_commandList
+  }
 
 
   val mainPanel = new BorderPanel {
@@ -88,4 +90,9 @@ class SwingGUI extends MainFrame {
 
 
   contents = mainPanel
+}
+
+
+class MyTableModel(model: Array[Array[AnyRef]], columnNames: Array[AnyRef]) extends DefaultTableModel(model, columnNames) {
+  override def isCellEditable(row: Int, column: Int) = false
 }

@@ -82,7 +82,7 @@ class DBAccessCommand extends Actor {
         val onlyCommands: List[(Call, Long, List[String])] = for ((call, time, tags) <- only) yield {
           (call.asInstanceOf[Call], time.asInstanceOf[Long], tags.asInstanceOf[List[String]])
         }
-        val sortedOnlyCommands = onlyCommands.sortBy(_._2 )
+        val sortedOnlyCommands = onlyCommands.sortBy(_._2)
 
         origin ! ReceivedCommand(Left(sortedOnlyCommands))
       }
@@ -92,29 +92,31 @@ class DBAccessCommand extends Actor {
       }
 
 
-      case GetDatabaseNames => mongoDBActor !  GetDatabaseNamesOrigin(sender)
-      case DatabaseNamesOrigin(list,origin) => origin ! DatabaseNames(list)
-    } // TODO
-//    case ReceivedFile(fileList, origin) => dataList match {
-//
-//      case Success(list) => {
-//        val files = for (entry <- list) yield {
-//          if (entry.contains("")) {
-//
-//
-//          }
-//
-//        }
-//
-//        }
-//        origin ! ReceivedAudioFile(Left(onlyAudioFiles))
-//        origin ! ReceivedVideoFile(Left(onlyVideoFiles))
-//
-//
-//      case Failure(list) => {
-//        //origin ! ReceivedCommand(Right("Error"))
-//      }
-//    }
+    }
+
+    case GetDatabaseNames => mongoDBActor ! GetDatabaseNamesOrigin(sender)
+    case DatabaseNamesOrigin(list, origin) => origin ! DatabaseNames(list)
+    // TODO
+    //    case ReceivedFile(fileList, origin) => dataList match {
+    //
+    //      case Success(list) => {
+    //        val files = for (entry <- list) yield {
+    //          if (entry.contains("")) {
+    //
+    //
+    //          }
+    //
+    //        }
+    //
+    //        }
+    //        origin ! ReceivedAudioFile(Left(onlyAudioFiles))
+    //        origin ! ReceivedVideoFile(Left(onlyVideoFiles))
+    //
+    //
+    //      case Failure(list) => {
+    //        //origin ! ReceivedCommand(Right("Error"))
+    //      }
+    //    }
   }
 
   def unpackMixedVals(list: List[MixedValue]): List[Any] = {
