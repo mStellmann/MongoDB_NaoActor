@@ -29,7 +29,7 @@ object DBHelloWorld extends App {
 
   // Create the Akka system
   // val system = ActorSystem("DBSystem")
-  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  //  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
@@ -37,7 +37,7 @@ object DBHelloWorld extends App {
 
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
-  Thread.sleep(15000)
+  //  Thread.sleep(15000)
 
   //system.shutdown()
 
