@@ -2,7 +2,7 @@ package gui
 
 import akka.actor.{ActorRef, Actor}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
-import scala.swing.ComboBox
+import scala.swing.{Dialog, ComboBox}
 import scala.swing.event.{TableRowsSelected, ButtonClicked}
 import messages.userMessages.{SaveCommand, ReceivedCommand, SearchCommand}
 
@@ -30,10 +30,12 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
   var noResponse: ActorRef = null
   var response: ActorRef = null
 
-  // listener
-  gui.listenTo(gui.button_search, gui.button_sendToNao, gui.cBox_starttime, gui.cBox_endtime, gui.table_commandList.selection)
+  // ----- GUI-Listener -----
+  gui.listenTo(gui.button_search, gui.button_sendToRobot, gui.cBox_starttime, gui.cBox_endtime, gui.table_commandList.selection)
 
+  // ----- GUI-Reactions -----
   gui.reactions += {
+    // ----- Suchanfrage starten -----
     case ButtonClicked(gui.button_search) => {
       val rsnr = if (model.cBox_Robots.selection.item != "ALL") Some(model.cBox_Robots.selection.item) else None
       val command = if (model.cBox_Commands.selection.item != "All Commands") Some(model.cBox_Commands.selection.item) else None
@@ -42,75 +44,71 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
       val tagText = gui.textfield_tags.peer.getText.trim.toLowerCase.replaceAll(" ", "")
       val tags = if (!tagText.isEmpty) Some(tagText.split( """,|;""").toList) else None
 
-      gui.button_sendToNao.enabled = false
+      gui.button_sendToRobot.enabled = false
 
       commandActor ! SearchCommand(rsnr, command, tStart, tEnd, tags)
     }
 
-    case ButtonClicked(gui.button_sendToNao) => {
-      for (elem <- gui.table_commandList.selection.rows) {
+    // ----- Befehl zum Roboter senden -----
+    case ButtonClicked(gui.button_sendToRobot) => gui.table_commandList.selection.rows.isEmpty match {
+      case false => for (elem <- gui.table_commandList.selection.rows) {
         val hc = (gui.table_commandList(elem, 0), gui.table_commandList(elem, 1), gui.table_commandList(elem, 2), gui.table_commandList(elem, 3)).hashCode
         noResponse ! model.commandHistoryMap(hc)
       }
+      case true => Dialog.showMessage(gui.button_sendToRobot, "Keine gültige Auswahl in der Tabelle!", title = "Auswahl-Fehler")
     }
 
+    // ----- Textfeld des Startzeitpunktes aktivieren -----
     case ButtonClicked(gui.cBox_starttime) => gui.cBox_starttime.selected match {
       case true => gui.ftxtField_starttime.enabled = true; gui.ftxtField_starttime.revalidate()
       case false => gui.ftxtField_starttime.enabled = false; gui.ftxtField_starttime.revalidate()
     }
 
+    // ----- Textfeld des Endzeitpunktes aktivieren -----
     case ButtonClicked(gui.cBox_endtime) => gui.cBox_endtime.selected match {
       case true => gui.ftxtField_endtime.enabled = true; gui.ftxtField_endtime.revalidate()
       case false => gui.ftxtField_endtime.enabled = false; gui.ftxtField_endtime.revalidate()
     }
 
+    // ----- Tabellenselektion -----
     case TableRowsSelected(gui.table_commandList, range, false) => gui.table_commandList.selection.rows.isEmpty match {
-      case true => gui.button_sendToNao.enabled = false
-      case false => gui.button_sendToNao.enabled = true
+      case true => gui.button_sendToRobot.enabled = false
+      case false => gui.button_sendToRobot.enabled = true
     }
 
   }
 
-
-  // Getting the Database Actors
+  /**
+   * Vor dem Start des Aktors werden die Datenbankaktoren und die Naogateway-Aktoren abgefragt
+   */
   override def preStart() {
     agent ! DatabaseActors
     robotActor ! Connect
   }
 
+  /**
+   * Receive-Funktion zum empfangen der Daten des Aktors
+   */
   def receive = {
-    // receiving the SerialNumbers (names) for each robot
+    // ----- Empfangen der Datenbankaktoren -----
     case ReceivedDatabaseActors(cActor, fActor) => {
       commandActor = cActor
       fileActor = fActor
-
-      // testingExamples
-      //            commandActor ! SaveCommand("Nila", System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Hallo")), List("Gespraech", "Uni", "Datenbank", "Test"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000), Call('ALTextToSpeech, 'say, List("Mein Name ist Nila")), List("Pistole", "Terminator"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000 * 2), Call('ALTextToSpeech, 'say, List("Ich bin ein Roboter")), List("Angst"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000 * 3), Call('ALTextToSpeech, 'say, List("peng peng!")), List("Kampf", "Action"))
-      //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1000),  Call('ALLeds, 'randomEyes, List(3.0f)), List("Augen", "Random"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 500),  Call('ALLeds, 'rotateEyes, List(0x00FF0000, 1.0f, 3.0f)), List("Augen", "Rot"))
-      //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()- 2000 ),  Call('ALRobotPosture, 'goToPosture, List("Stand", 1.0f)), List("aufstehen"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1500),  Call('ALRobotPosture, 'goToPosture, List("Sit", 1.0f)), List("hinsetzen"))
-      //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 5),  Call('ALMotion, 'setStiffnesses, List("Body", 0.0f)), List("loose"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 6),  Call('ALMotion, 'setStiffnesses, List("Body", 1.0f)), List("stiff"))
-
+      // ----- gespeicherte Befehlskategorien abfragen -----
       commandActor ! GetDatabaseNames
+      // ----- gespeicherte Roboter (Seriennummern | Namen) abfragen -----
       sender ! RobotSerialNumbers
 
     }
 
+    // ----- Empfangen der Befehlskategorien -----
     case DatabaseNames(databases) => {
       model.cBox_Commands = new ComboBox[String]("All Commands" :: databases.filterNot(_ == "local"))
       gui.panel_cBoxCommands.contents += model.cBox_Commands
       gui.panel_cBoxCommands.revalidate()
     }
 
-    // receiving the SerialNumbers and starting the GUI
+    // ----- Empfangen der Roboter (Seriennummern | Namen) -----
     case ReceivedRobotSerialNumbers(rsnAry) => {
       model.cBox_Robots = new ComboBox(rsnAry.toList.reverse)
       gui.panel_cBoxChooseRobot.contents += model.cBox_Robots
@@ -118,11 +116,13 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
       gui.visible = true
     }
 
+    // ----- Empfangen der Naogateway-Aktoren -----
     case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
       this.noResponse = noResponse
       this.response = response
     }
 
+    // ----- Empfagen des  Suchergebnisses -----
     case ReceivedCommand(commandList) =>
       commandList match {
         case Left(callList) => {

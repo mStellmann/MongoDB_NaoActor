@@ -10,10 +10,11 @@ import scala.swing._
  * des NAOGateways her
  */
 object DBGui extends App {
+  // ----- View und Model erstellen -----
   val gui = new DatabaseSwingGUI
   val model = new Model
 
-  // Dialog um den anzusprechenden Roboter zu waehlen
+  // ----- Dialog um den anzusprechenden Roboter zu waehlen -----
   var chooseRobot = 'DEFAULT
   val dialog_chooseRobot = new Dialog() {
     title = "Roboterauswahl"
@@ -42,20 +43,22 @@ object DBGui extends App {
     open()
   }
 
-  // Verbindung zum Naogateway
+  // ----- Verbindung zum Naogateway -----
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
-  // Auswahl des anzusprechenden Roboters
+  // ----- Auswahl des anzusprechenden Roboters -----
   val naoActor = chooseRobot match {
     case 'NILA => system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
     case 'HANNA => system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
     case 'DEFAULT => system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
   }
 
-  // Erstellen des Aktorensystems der Datenbank
+  // ----- Erstellen des Aktorensystems der Datenbank -----
   system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
 
   val agent = system.actorFor("akka://remoting/user/DBConfigurator/DBAgent")
-  system.actorOf(Props().withCreator(new ControlActor(agent, naoActor, gui)), name = "GUIActor")
+
+  // ----- Erstellung des Controller der GUI -----
+  system.actorOf(Props().withCreator(new ControlActor(agent, naoActor, gui, model)), name = "GUIActor")
 }

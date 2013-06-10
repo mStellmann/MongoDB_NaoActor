@@ -24,15 +24,16 @@ class DatabaseSwingGUI extends MainFrame {
 
   // ----- Buttons -----
   val button_search = new Button("Los, suchen!")
-  val button_sendToNao = new Button("Back to NAO") {
+  val button_sendToRobot = new Button("Back to Robot") {
     enabled = false
   }
 
   // ----- Textfeld fuer die Tagsuche -----
   val textfield_tags = new TextField {
-    preferredSize = new Dimension(400, 25)
-    minimumSize = new Dimension(400, 25)
-    maximumSize = new Dimension(400, 25)
+    preferredSize = new Dimension(400, 30)
+    minimumSize = new Dimension(400, 30)
+    maximumSize = new Dimension(400, 30)
+    tooltip = "einzelne Elemente trennen durch: ',' oder  ';'"
   }
 
   // ----- Datumsfelder und deren Checkboxen -----
@@ -59,7 +60,7 @@ class DatabaseSwingGUI extends MainFrame {
       add(new Label("Choose EndTime"), (2, 1))
       add(ftxtField_endtime, (3, 1))
       add(button_search, (4, 0))
-      add(button_sendToNao, (4, 1))
+      add(button_sendToRobot, (4, 1))
       border = Swing.EmptyBorder(10, 5, 2, 5)
     }
     contents += new FlowPanel {
