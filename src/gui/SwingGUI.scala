@@ -1,15 +1,17 @@
 package gui
 
 import scala.swing._
-import scala.swing.event.ButtonClicked
+
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.awt.Dimension
 import scala.swing.Dimension
-import scala.collection.mutable.ListBuffer
-import javax.swing.table.{AbstractTableModel, TableRowSorter, DefaultTableModel}
-import javax.swing.JTable
+import javax.swing.table.DefaultTableModel
 
+
+// TODO
+// Queue für die Befehle
+// Rechts-Klick -> PopUp Menu
+// Doppel-Klick -> senden..
 
 class SwingGUI extends MainFrame {
 

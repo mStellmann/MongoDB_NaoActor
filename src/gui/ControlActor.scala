@@ -1,9 +1,9 @@
 package gui
 
-import akka.actor.{ActorRef, Actor, ActorSelection}
+import akka.actor.{ActorRef, Actor}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
 import scala.swing.ComboBox
-import scala.swing.event.{TableRowsSelected, SelectionChanged, ListSelectionChanged, ButtonClicked}
+import scala.swing.event.{TableRowsSelected, ButtonClicked}
 import messages.userMessages.{SaveCommand, ReceivedCommand, SearchCommand}
 
 import naogateway.value.NaoMessages._
@@ -103,14 +103,14 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
     }
 
     case DatabaseNames(databases) => {
-      cBox_Commands = new ComboBox[String](databases)
+      cBox_Commands = new ComboBox[String]("All Commands" :: databases.filterNot(_ == "local"))
       gui.panel_cBoxCommands.contents += cBox_Commands
       gui.panel_cBoxCommands.revalidate()
     }
 
     // receiving the SerialNumbers and starting the GUI
     case ReceivedRobotSerialNumbers(rsnAry) => {
-      cBox_Robots = new ComboBox(rsnAry.toList)
+      cBox_Robots = new ComboBox(rsnAry.toList.reverse)
       gui.panel_cBoxChooseRobot.contents += cBox_Robots
       gui.panel_cBoxChooseRobot.revalidate()
       gui.visible = true
