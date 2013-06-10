@@ -37,6 +37,11 @@ class DBAccessCommand extends Actor {
 
   val agent = context.actorSelection("/user/DBConfigurator/DBAgent")
 
+
+  /**
+   *
+   *
+   */
   def receive = {
     // TODO - ScalaDoc
     //case SaveCommand(robotSerialNumber, timestamp, call, tagList) => mongoDBActor ! Save(call.module.name, robotSerialNumber, timestamp, tagList)
