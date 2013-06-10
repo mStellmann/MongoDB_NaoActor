@@ -66,6 +66,8 @@ class SwingGUI extends MainFrame {
   }
 
 
+
+
   val scrollPane_CommandList = new ScrollPane {
     contents = table_commandList
   }

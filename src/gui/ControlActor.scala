@@ -83,19 +83,19 @@ class ControlActor(agent: ActorRef, naoActor: ActorRef, gui: SwingGUI) extends A
       fileActor = fActor
 
       // testingExamples
-      //            commandActor ! SaveCommand("Nila", System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Hallo")), List("Gespraech", "Uni", "Datenbank", "Test"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000), Call('ALTextToSpeech, 'say, List("Mein Name ist Nila")), List("Pistole", "Terminator"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000 * 2), Call('ALTextToSpeech, 'say, List("Ich bin ein Roboter")), List("Angst"))
-      //            commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000 * 3), Call('ALTextToSpeech, 'say, List("peng peng!")), List("Kampf", "Action"))
+                  commandActor ! SaveCommand("Nila", System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Hallo")), List("Gespraech", "Uni", "Datenbank", "Test"))
+                 commandActor ! SaveCommand("Nila", (System.currentTimeMillis() + 86400000), Call('ALTextToSpeech, 'say, List("Mein Name ist Nila")), List("Pistole", "Terminator"))
+
+
+
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1000),  Call('ALLeds, 'randomEyes, List(3.0f)), List("Augen", "Random"))
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 500),  Call('ALLeds, 'rotateEyes, List(0x00FF0000, 1.0f, 3.0f)), List("Augen", "Rot"))
       //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1000),  Call('ALLeds, 'randomEyes, List(3.0f)), List("Augen", "Random"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 500),  Call('ALLeds, 'rotateEyes, List(0x00FF0000, 1.0f, 3.0f)), List("Augen", "Rot"))
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()- 2000 ),  Call('ALRobotPosture, 'goToPosture, List("Stand", 1.0f)), List("aufstehen"))
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1500),  Call('ALRobotPosture, 'goToPosture, List("Sit", 1.0f)), List("hinsetzen"))
       //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()- 2000 ),  Call('ALRobotPosture, 'goToPosture, List("Stand", 1.0f)), List("aufstehen"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis() - 1500),  Call('ALRobotPosture, 'goToPosture, List("Sit", 1.0f)), List("hinsetzen"))
-      //
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 5),  Call('ALMotion, 'setStiffnesses, List("Body", 0.0f)), List("loose"))
-      //            commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 6),  Call('ALMotion, 'setStiffnesses, List("Body", 1.0f)), List("stiff"))
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 5),  Call('ALMotion, 'setStiffnesses, List("Body", 0.0f)), List("loose"))
+                  commandActor ! SaveCommand ("Nila", (System.currentTimeMillis()+ 86400000 * 6),  Call('ALMotion, 'setStiffnesses, List("Body", 1.0f)), List("stiff"))
 
       commandActor ! GetDatabaseNames
       sender ! RobotSerialNumbers
