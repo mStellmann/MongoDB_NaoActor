@@ -13,7 +13,7 @@ object DBGui extends App {
 
   // theoretisch über config
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
-  //    val naoActor = system.actorFor("akka://naogateway@192.168.1.101:2550/user/hanna")
+  //    val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2550/user/hanna")
 
 
   system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
