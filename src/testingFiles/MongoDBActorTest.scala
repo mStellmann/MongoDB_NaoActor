@@ -6,8 +6,11 @@ import com.mongodb.casbah.MongoClient
 import messages.internalMessages._
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
-import java.io.{ File, FileInputStream }
+import java.io.{File, FileInputStream}
 
+/**
+ * interne TestKlasse
+ */
 object MongoDBActorTest extends App {
 
   import akka.actor.ActorSystem
@@ -19,6 +22,7 @@ object MongoDBActorTest extends App {
   import naogateway.value.NaoMessages._
   import naogateway.value.NaoMessages.Conversions._
   import naogateway.value.NaoVisionMessages._
+
   val config = ConfigFactory.load()
   //  val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
@@ -40,14 +44,14 @@ object MongoDBActorTest extends App {
   //  mongoDB ! SaveCommand("ALTextToSpeech", "nila", 23479813, command, Map("back" -> List(8, 3.789), "tags" -> List("a", "b")))
 
   //Read a File and get its ByteArray
-//    val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
-//    val in = new FileInputStream(file)
-//    val bytes = new Array[Byte](file.length.toInt)
-//    in.read(bytes)
-//    in.close()
+  //    val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
+  //    val in = new FileInputStream(file)
+  //    val bytes = new Array[Byte](file.length.toInt)
+  //    in.read(bytes)
+  //    in.close()
 
   //Save a file
-//    mongoDB ! SaveFile("filetest", "Nila", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
+  //    mongoDB ! SaveFile("filetest", "Nila", 1234353, "Doku.doc", "application/msword", bytes, Map("tags" -> List("complete", "awesome")))
 
   //Let DB work
   Thread.sleep(1000)
@@ -77,7 +81,7 @@ object MongoDBActorTest extends App {
       }
       case "Find" => {
         //Search things
-          mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
         mongoDB ! SearchFile(Some("filetest"), None, None, None, None, None, Some(Map("tags" -> List("complete", "awesome"))), self)
 
         //mongoDB ! SearchFile(None, None, None, None, Some("application/msword"), Some("Doku.doc"), None, self)
@@ -87,6 +91,7 @@ object MongoDBActorTest extends App {
       case x => println("Got: " + x)
     }
   }
+
   Thread.sleep(2000);
   system.shutdown
 }

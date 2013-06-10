@@ -1,1 +1,12 @@
-DB
+Stuff to do:
+- auswahl an welchen roboter man die daten schicken möchte
+- queries
+- dateisuche
+              - FileActor -> dbactor
+
+// Queue für die Befehle
+// Rechts-Klick -> PopUp Menu
+// Doppel-Klick -> senden..
+
+
+// send back to nao deaktivieren wenn nichts ausgewählt
