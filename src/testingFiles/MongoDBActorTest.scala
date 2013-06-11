@@ -12,7 +12,7 @@ import naogateway.value.NaoVisionMessages._
 
 /**
  * interne TestKlasse die direkt den MongoDBActor anspricht
- * Beispiel für File saving und suchen
+ * Beispiel fuer File saving und suchen
  */
 object MongoDBActorTest extends App {
   val system = ActorSystem("DBSystem")
