@@ -21,26 +21,20 @@ import messages.internalMessages.GetDatabaseNames
 
 object DBHelloWorld extends App {
 
-
   val config = ConfigFactory.load()
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
 
-  // Create the Akka system
-  // val system = ActorSystem("DBSystem")
-  //  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  // DBConfigurator startet unser System muss auf dem MongoDB Rechner gestartet werden
+  // DONT system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  //  Thread.sleep(1500)
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
-  Thread.sleep(1500)
-
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
-  //  Thread.sleep(15000)
-
-  //system.shutdown()
-
+  //Aktor besser mit become realisieren!
   class HelloWorldActor extends Actor {
     var commandActor: ActorRef = null
     var fileActor: ActorRef = null
@@ -49,41 +43,41 @@ object DBHelloWorld extends App {
     override def preStart = agent ! DatabaseActors;
     naoActor ! Connect
     Thread.sleep(2000)
+
     var noresponseA: ActorRef = self
 
     def receive = {
-      // receiving the SerialNumbers (names) for each robot
-      case ReceivedDatabaseActors(cActor, fActor) => {
+    	
+      //NaoGateWay Aktoren
+      case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
+        noresponseA = noResponse
+      }
 
+      //Unsere Datenbank Aktoren
+      case ReceivedDatabaseActors(cActor, fActor) => {
         commandActor = cActor
         fileActor = fActor
+        // receiving the SerialNumbers (names) for each robot
         sender ! RobotSerialNumbers
       }
 
       // receiving the SerialNumbers and starting the Test
       case ReceivedRobotSerialNumbers(rsnAry) => {
-
+        //Speicher Call
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
-
+        //Suche mit Options
         commandActor ! SearchCommand(Some(rsnAry(1)))
         commandActor ! SearchCommand(Some(rsnAry(1)), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
 
       }
 
-      case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
-        noresponseA = noResponse
-      }
-
-
+      //Antwort auf die Suchanfrage
       case ReceivedCommand(commandList) =>
-
         commandList match {
-          //          case Left(callList) => for (elem <- callList) noresponseA ! elem
+          case Left(callList) => for (elem <- callList) noresponseA ! elem
           case Right(errMsg) => println(errMsg)
         }
 
     }
   }
-
-  // TODO - "Hello World - Get Started"
 }

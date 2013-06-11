@@ -43,6 +43,7 @@ case class GetDatabaseNamesOrigin(origin: ActorRef)
  */
 case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[Any]])
 
+@Deprecated
 /**
  * Nachricht User->DBAccessCommand
  * @param collection
@@ -52,6 +53,7 @@ case class Save(collection: String, robotSerialNumber: String, timestamp: Long, 
  * @param content
  */
 case class SaveCommand(collection: String, robotSerialNumber: String, timestamp: Long, command: Call, content: Map[String, List[AnyVal]])
+
 
 /**
  * Nachricht User->DBAccessCommand
@@ -137,6 +139,7 @@ import naogateway.value.NaoMessages.Call
  */
 case class SaveCommand(robotSerialNumber: String, timestamp: Long, naoCommand: Call, tagList: List[String] = Nil) extends TCall
 
+@Deprecated
 /**
  *  ControlAgent -> DBAccessCommand
  * @param robotSerialNumber
@@ -148,6 +151,7 @@ case class SaveCommand(robotSerialNumber: String, timestamp: Long, naoCommand: C
  */
 case class SaveAudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String] = Nil) extends TFile
 
+@Deprecated
 /**
  * ControlAgent -> DBAccessCommand
  * @param robotSerialNumber
@@ -159,6 +163,7 @@ case class SaveAudioFile(robotSerialNumber: String, timestamp: Long, filename: S
  */
 case class SaveVideoFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, videoFile: Array[Byte], tagList: List[String] = Nil) extends TFile
 
+@Deprecated
 /**
  * ControlAgent -> DBAccessCommand
  * @param robotSerialNumber
@@ -181,6 +186,7 @@ case class SavePicture(robotSerialNumber: String, timestamp: Long, filename: Str
  */
 case class SearchCommand(robotSerialNumber: Option[String], collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, tagList: Option[List[String]] = None)
 
+@Deprecated
 /**
  *  User -> DBAccessCommand
  * @param robotSerialNumber
@@ -193,6 +199,7 @@ case class SearchCommand(robotSerialNumber: Option[String], collection: Option[S
  */
 case class SearchAudioFile(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
+@Deprecated
 /**
  * User -> DBAccessCommand
  * @param robotSerialNumber
@@ -205,6 +212,7 @@ case class SearchAudioFile(robotSerialNumber: String, collection: Option[String]
  */
 case class SearchVideoFile(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
+@Deprecated
 /**
  * User -> DBAccessCommand
  * @param robotSerialNumber
@@ -223,10 +231,11 @@ case class SearchPicture(robotSerialNumber: String, collection: Option[String] =
 //case class ReceivedCommand(commandTimestampTagList: Either[(List[Call], List[Long], List[String]), String])
 case class ReceivedCommand(commandTimestampTagList: Either[(List[(Call, Long, List[String])]), String])
 
+@Deprecated
 case class ReceivedAudioFile(audioFileList: Either[List[AudioFile], String])
-
+@Deprecated
 case class ReceivedVideoFile(videoFileList: Either[List[VideoFile], String])
-
+@Deprecated
 case class ReceivedPicture(imageList: Either[List[Picture], String])
 
 }
@@ -247,10 +256,11 @@ sealed trait TFile
 
 case class SavedCommand(robotSerialNumber: String, timestamp: Long, naoCommand: Call, tagList: List[String] = Nil) extends TCall
 
+@Deprecated
 case class AudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String]) extends TFile
-
+@Deprecated
 case class VideoFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, videoFile: Array[Byte], tagList: List[String]) extends TFile
-
+@Deprecated
 case class Picture(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, imageFile: Array[Byte], tagList: List[String]) extends TFile
 
 }

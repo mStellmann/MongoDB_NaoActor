@@ -3,39 +3,43 @@ package dbActors
 import akka.actor.Actor
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
-import messages.internalMessages._
-import scala.util.{ Try, Success, Failure }
 import com.mongodb.casbah.commons.MongoDBObject
+import scala.collection.mutable.MutableList
+import scala.Some
+import scala.util.{ Try, Success, Failure }
 import naogateway.value.Hawactormsg
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
-import scala.collection.mutable.MutableList
 import naogateway.value.Hawactormsg.MixedValue
-import messages.internalMessages.ReceivedFile
-import scala.util.Failure
-import scala.Some
+import messages.internalMessages.Save
 import messages.internalMessages.SearchData
+import messages.internalMessages.ReceivedData
 import messages.internalMessages.SaveFile
 import messages.internalMessages.SearchFile
-import messages.internalMessages.Save
-import scala.util.Success
-import messages.internalMessages.ReceivedData
+import messages.internalMessages.ReceivedFile
+import messages.internalMessages.GetDatabaseNamesOrigin
+import messages.internalMessages.DatabaseNamesOrigin
 
-// TODO - Max
 /**
  * This actor works as an adapter for the connection and communication with a MongoDB-Database.
  * It is a basic interface for saving and finding objects in the database.
  */
 class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extends Actor {
   import com.mongodb.casbah.commons.conversions.scala._
-  //JodaTime doesn't work with JodaTime 
+  /**GridFS doesn't work well with JodaTime*/
   DeregisterJodaTimeConversionHelpers()
 
-  println("MongoDbActor created")
+  //println("MongoDbActor created")
 
   def receive = {
+
+    /**
+     * Speichere die content Map als MongoDocument in der DB db unter der Collection robotSerialNumber
+     */
     case Save(db, robotSerialNumber, timestamp, content) => {
       val mongoDBDoc = MongoDBObject("time" -> List(timestamp))
+
+      /**Speichere nur unterstuezte DatenTypen ab*/
       val contentWithSupportedTypes = convertMapToSaveTypes(content)
       val dBEntry = mongoDBDoc ++ contentWithSupportedTypes.asDBObject
 
@@ -43,83 +47,77 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
       save(mongoCollection, dBEntry)
     }
 
-    //    case SaveCommand(db, robotSerialNumber, timestamp, command, content) => {
-    //
-    //      val mongoDBDoc = Map(
-    //        "callModule" -> List(command.module.name.toString),
-    //        "callMethod" -> List(command.method.name.toString),
-    //        "callArgs" -> unpackMixedVals(command.parameters))
-    //
-    //      self ! Save(db, robotSerialNumber, timestamp, mongoDBDoc ++ content)
-    //    }
+    /**
+     * Suche nach Daten
+     * bei Nones durchsuche alle Moeglichkeiten
+     */
+    case SearchData(collections, robotSerialNumber, timestampStart, timestampEnd, contentWithTags, origin) => {
 
-    case SearchData(collections, robotSerialNumber, timestampStart, timestampEnd, content, origin) => {
-
-      val start = timestampStart.getOrElse(0L)
-      val end = timestampEnd.getOrElse(Long.MaxValue)
-      val searchTime = {
+      /** Time Teil der Query */
+      val startSearchTime = timestampStart.getOrElse(0L)
+      val endSearchTime = timestampEnd.getOrElse(Long.MaxValue)
+      val searchWithTimeQuery = {
         {
-          ("time" $gte start $lte end)
+          ("time" $gte startSearchTime $lte endSearchTime)
         }
       }
 
-      val tags = content.getOrElse(Map())
-      val elemTags = for (entry <- tags) yield MongoDBObject(entry._1 -> MongoDBObject("$in" -> entry._2))
+      /** Tag Teil der Query */
+      val tags = contentWithTags.getOrElse(Map())
+      val tagSearchQuery = for (entry <- tags) yield MongoDBObject(entry._1 -> MongoDBObject("$in" -> entry._2))
 
+      /** Gesamt Query */
       val andQuery = MongoDBObject();
-      val andList = List[MongoDBObject](searchTime) ++ elemTags //tags.asDBObject);
+      val andList = List[MongoDBObject](searchWithTimeQuery) ++ tagSearchQuery
       andQuery.put("$and", andList);
 
+      /** Abzufragende DBs */
       val dbToQuery = if (collections.isDefined) List(collections.get) else mongoDBClient.getDatabaseNames.toList
 
+      /** Abzufragende Collections */
       val robotSerialList = robotSerialNumber match {
         case None => robotNames.toList
         case Some(id) => List(id)
       }
 
+      /** Gefundene Dokumente */
       val foundList = for {
         db <- dbToQuery
         robotSerial <- robotSerialList
       } yield {
         val mongoCollection = mongoDBClient(db)(robotSerial)
-
         val finalSearchRequest = andQuery
-        println("Searching For:" + finalSearchRequest + " in " + db)
-
+        //println("Searching For:" + finalSearchRequest + " in " + db)
         val found = mongoCollection.find(finalSearchRequest)
         found
       }
 
-      val docsFound = (for {
+      /** Gefundene Dokumente auf List[Any] gecastet fuer die Rueckgabe Nachricht*/
+      val documentsFound = (for {
         found <- foundList
         document <- found
       } yield (for {
-        //TODO if list else lassen keien forcompr
-        //in db everthing is a List from AnyRef
+        //moegliche Verbesserung pruefe ob Liste
+        //derzeit speichern wir alles als Liste
+        //aus der db kommend ist alles eine Liste von AnyRef
         (key, value) <- document if (key != "_id" && value.isInstanceOf[BasicDBList])
       } yield ((key, value.asInstanceOf[BasicDBList].toList))).toMap[String, List[Any]]).toList
 
-      //TODO in DB Access
-      //      val commands = for (entry <- docsFound) yield {
-      //        if (entry.contains("callModule")) {
-      //          val callModule: Symbol = Symbol.apply(entry("callModule")(0).asInstanceOf[String])
-      //          val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
-      //          val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
-      //          Call(callModule, callMethod, callArgs)
-      //        }
-      //      }
-
-      if (docsFound.isEmpty)
+      if (documentsFound.isEmpty)
         sender ! ReceivedData(Failure(new NoSuchElementException("Nothing Found")), origin)
       else {
-        //        for (command <- commands if command != ()) println(command) //sender ! command
-        sender ! ReceivedData(Success(docsFound), origin)
+        sender ! ReceivedData(Success(documentsFound), origin)
       }
     }
 
+    /**
+     * Speichere das File aus dem Byte[] in der DB
+     * mit der content Map als Metadata + robotSerial und time
+     */
     case SaveFile(db, robotSerialNumber, timestamp, filename, filetyp, file, content) => {
 
       val mongoDBDoc = MongoDBObject("time" -> List(timestamp), "robotSerialNumber" -> List(robotSerialNumber))
+      /**Speichere nur unterstuezte DatenTypen ab*/
       val contentWithSupportedTypes = convertMapToSaveTypes(content)
       val metaData = mongoDBDoc ++ contentWithSupportedTypes.asDBObject
 
@@ -129,48 +127,59 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
       val gfsFile = gridfs.createFile(file)
       gfsFile.filename = filename
       gfsFile.contentType = filetyp
-      gfsFile.metaData = metaData  
+      gfsFile.metaData = metaData
       gfsFile.save
     }
 
-    // TODO 
+    /**
+     * Suche nach Files
+     * bei Nones durchsuche alle Moeglichkeiten
+     * Suche nach Time oder Tags funktioniert noch nicht!
+     */
     case SearchFile(collection, robotSerialNumber, timestampStart, timestampEnd, filetyp, filename, content, origin) => {
 
-      val start = timestampStart.getOrElse(0L)
-      val end = timestampEnd.getOrElse(Long.MaxValue)
-      val searchTime = "time" $gte start $lte end
+      /** Time Teil der Query */
+      val startSearchTime = timestampStart.getOrElse(0L)
+      val endSearchTime = timestampEnd.getOrElse(Long.MaxValue)
+      val searchWithTimeQuery = "time" $gte startSearchTime $lte endSearchTime
 
+      /** Tag Teil der Query */
       val tags = content.getOrElse(Map())
       val elemTags = for (entry <- tags) yield (entry._1 -> MongoDBObject("$in" -> entry._2))
-      //TODO search Metadata
-      val metadata = elemTags ++ searchTime
+
+      //TODO metadata query funktionstuechtig machen
+      val metadata = elemTags ++ searchWithTimeQuery
 
       val name = filename.getOrElse("")
       val fType = filetyp.getOrElse("")
 
+      val andQuery = MongoDBObject()
       val andList = List(MongoDBObject("filename" -> name), MongoDBObject("contentType" -> fType), MongoDBObject("metadata" -> content))
-      val andQuery = MongoDBObject();
-      andQuery.put("$or", andList);
+      andQuery.put("$or", andList)
 
-      val dbToQuery = if (collection.isDefined) List(collection.get) else mongoDBClient.getDatabaseNames.toList
+      /** Abzufragende DBs */
+      val dbsToQuery = if (collection.isDefined) List(collection.get) else mongoDBClient.getDatabaseNames.toList
+
+      /** Gefundene Dokumente */
       val foundList = for {
-        db <- dbToQuery
+        db <- dbsToQuery
       } yield {
         val mongoDB: MongoDB = mongoDBClient.getDB(db)
         val gridfs = GridFS(mongoDB)
-
         val finalSearchRequest = andQuery
-        println("Searching For:" + finalSearchRequest + " in " + db)
-
+        //println("Searching For:" + finalSearchRequest + " in " + db)
         val found = gridfs.find(finalSearchRequest)
         found
       }
-      println(foundList)
+
+      //println(foundList)
+
+      /** Aus Gefundenen Dokumente Filename FileTyp Date byte[] fuer die Rueckgabe Nachricht extrahieren*/
       val docsFound = (for {
         found <- foundList
         file <- found
       } yield (file.getFilename(), file.getContentType(), file.getUploadDate().getTime(),
-        {
+        { //File in Byte[] verwandeln
           val inputStream = file.getInputStream()
           val byteArray = new Array[Byte](file.getLength().toInt)
           inputStream.read(byteArray)
@@ -183,14 +192,25 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
         sender ! ReceivedFile(Success(docsFound), origin)
       }
     }
-    case GetDatabaseNamesOrigin(origin)  =>  sender ! DatabaseNamesOrigin(mongoDBClient.getDatabaseNames.toList,origin)
+
+    /**
+     * GibT alle vorhanden DatenbankNamen zurueck
+     */
+    case GetDatabaseNamesOrigin(origin) => sender ! DatabaseNamesOrigin(mongoDBClient.getDatabaseNames.toList, origin)
+
     case x => println("mongoDB got unexpected " + x)
   }
 
+  /**
+   * Speichere das DBObject in der Collection
+   */
   def save(collection: MongoCollection, entry: DBObject) {
     collection += entry
   }
 
+  /**
+   * Iteriert ueber eine Map und extrahiert in der DB speicherbare Sachen
+   */
   def convertMapToSaveTypes(map: Map[String, List[Any]]): Map[String, List[Any]] = {
     for {
       (key, value) <- map
@@ -199,6 +219,10 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
     } yield getSaveableStuff(vali))
   }
 
+  /**
+   * Gibt von der DB unterstuezten Typen zurueck
+   * Bei nicht unterstuezten wird ein String generiert
+   */
   def getSaveableStuff(from: Any) = {
     from match {
       case x: Int => x
@@ -212,7 +236,27 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
       case other => "NOT_SAVEABLE_MONGODBACTOR.SCALA_[ToStringed: " + other.toString + "|Type: " + other.getClass + "]"
     }
   }
-
+}
+  // Code Reste
+  //
+  //jetzt in DB Access
+  //      val commands = for (entry <- docsFound) yield {
+  //        if (entry.contains("callModule")) {
+  //          val callModule: Symbol = Symbol.apply(entry("callModule")(0).asInstanceOf[String])
+  //          val callMethod: Symbol = Symbol.apply(entry("callMethod")(0).asInstanceOf[String])
+  //          val callArgs: List[MixedValue] = dbTypesToMixedVals(entry("callArgs"))
+  //          Call(callModule, callMethod, callArgs)
+  //        }
+  //      }
+  //    case SaveCommand(db, robotSerialNumber, timestamp, command, content) => {
+  //
+  //      val mongoDBDoc = Map(
+  //        "callModule" -> List(command.module.name.toString),
+  //        "callMethod" -> List(command.method.name.toString),
+  //        "callArgs" -> unpackMixedVals(command.parameters))
+  //
+  //      self ! Save(db, robotSerialNumber, timestamp, mongoDBDoc ++ content)
+  //    }
   //  def unpackMixedVals(list: List[MixedValue]): List[Any] = {
   //    for (arg <- list) yield {
   //      if (arg.hasInt) arg.getInt
@@ -248,4 +292,3 @@ class MongoDBActor(mongoDBClient: MongoClient, robotNames: Array[String]) extend
   //      }
   //    }
   //  }
-}
