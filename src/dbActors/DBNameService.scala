@@ -15,7 +15,7 @@ class DBNameService(robotSerialNumberList: Array[String]) extends Actor {
   println("DBNameService - erstellt")
   val childCommands = context.actorOf(Props[DBFacade], name = "DBFacade")
   println(childCommands)
-  val childFiles = context.actorOf(Props[DBAccessFile], name = "DBAccessFile")
+  val childFiles =  context.actorFor("/user/DBConfigurator/MongoDBActor")
 
   override def preStart() {
 
