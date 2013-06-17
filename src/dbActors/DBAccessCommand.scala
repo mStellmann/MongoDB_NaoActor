@@ -94,7 +94,7 @@ class DBAccessCommand extends Actor {
     /** Fragt die datenbank nach vorhandenen Datenbanken*/
     case GetDatabaseNames => mongoDBActor ! GetDatabaseNamesOrigin(sender)
     
-    /** Liefert die vorhanden Datenbanken zurück an den Anfrager*/
+    /** Liefert die vorhanden Datenbanken zurueck an den Anfrager*/
     case DatabaseNamesOrigin(list, origin) => origin ! DatabaseNames(list)
 
   }
@@ -117,7 +117,7 @@ class DBAccessCommand extends Actor {
   }
 
   /**
-   * Wandelt die in der DB gespeicherten Typen wieder zu MixedValue's für den Call Befehl
+   * Wandelt die in der DB gespeicherten Typen wieder zu MixedValue's fuer den Call Befehl
    */
   def dbTypesToMixedVals(list: List[Any]): List[MixedValue] = {
     import naogateway.value.NaoMessages.Conversions._

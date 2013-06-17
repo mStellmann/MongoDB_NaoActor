@@ -4,16 +4,8 @@ import akka.actor._
 import dbActors.DBConfigurator
 import messages.agentMessages._
 import messages.userMessages._
-import naogateway.value.NaoMessages._
-import naogateway.value.NaoMessages.Conversions._
-import naogateway.value.NaoVisionMessages._
-
-import akka.actor.ActorSystem
-import akka.actor.Actor
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
-import akka.actor.ActorRef
-import akka.actor.Props
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
 import naogateway.value.NaoVisionMessages._
@@ -28,7 +20,7 @@ object DBHelloWorld extends App {
 
   // DBConfigurator startet unser System muss auf dem MongoDB Rechner gestartet werden
   // DONT system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
-  //  Thread.sleep(1500)
+  // Thread.sleep(1500)
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
@@ -67,14 +59,14 @@ object DBHelloWorld extends App {
         commandActor ! SaveCommand(rsnAry(1), System.currentTimeMillis(), Call('ALTextToSpeech, 'say, List("Stehen bleiben!")), List("Gespraech", "Uni", "Datenbank", "Test"))
         //Suche mit Options
         commandActor ! SearchCommand(Some(rsnAry(1)))
-        commandActor ! SearchCommand(Some(rsnAry(1)), tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
+        commandActor ! SearchCommand(None, tagList = Option(List("Gespraech", "Uni", "Datenbank", "Test")))
 
       }
 
       //Antwort auf die Suchanfrage
       case ReceivedCommand(commandList) =>
         commandList match {
-          case Left(callList) => for (elem <- callList) noresponseA ! elem
+          case Left(callList) => for (elem <- callList) println(elem)
           case Right(errMsg) => println(errMsg)
         }
 
