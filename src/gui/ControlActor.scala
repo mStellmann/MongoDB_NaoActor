@@ -3,7 +3,7 @@ package gui
 import akka.actor.{ActorRef, Actor}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
 import scala.swing.{Dialog, ComboBox}
-import scala.swing.event.{TableRowsSelected, ButtonClicked}
+import scala.swing.event.{MouseClicked, TableRowsSelected, ButtonClicked}
 import messages.userMessages.{ReceivedCommand, SearchCommand}
 
 import naogateway.value.NaoMessages._
@@ -23,10 +23,16 @@ import messages.internalMessages.{DatabaseNames, GetDatabaseNames}
  */
 class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI, model: Model) extends Actor {
   // ----- GUI-Listener -----
-  gui.listenTo(gui.button_search, gui.button_sendToRobot, gui.cBox_starttime, gui.cBox_endtime, gui.table_commandList.selection)
+  gui.listenTo(gui.button_search, gui.button_sendToRobot, gui.cBox_starttime, gui.cBox_endtime, gui.table_commandList.selection, gui.table_commandList.mouse.clicks)
 
   // ----- GUI-Reactions -----
   gui.reactions += {
+    // ----- DoppelKlick -> Befehl zum Nao senden -----
+    case MouseClicked(gui.table_commandList, _, modifiers, clicks, _) => {
+      if (modifiers == 0 && clicks == 2)
+        sendMsgToRobot()
+    }
+
     // ----- Suchanfrage starten -----
     case ButtonClicked(gui.button_search) => {
       val rsnr = if (model.cBox_Robots.selection.item != "ALL") Some(model.cBox_Robots.selection.item) else None
@@ -43,10 +49,7 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
 
     // ----- Befehl zum Roboter senden -----
     case ButtonClicked(gui.button_sendToRobot) => gui.table_commandList.selection.rows.isEmpty match {
-      case false => for (elem <- gui.table_commandList.selection.rows) {
-        val hc = (gui.table_commandList(elem, 0), gui.table_commandList(elem, 1), gui.table_commandList(elem, 2), gui.table_commandList(elem, 3)).hashCode
-        model.noResponse ! model.commandHistoryMap(hc)
-      }
+      case false => sendMsgToRobot()
       case true => Dialog.showMessage(gui.button_sendToRobot, "Keine gültige Auswahl in der Tabelle!", title = "Auswahl-Fehler")
     }
 
@@ -75,6 +78,16 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
   override def preStart() {
     agent ! DatabaseActors
     robotActor ! Connect
+  }
+
+  /**
+   * Sendet die Call-Befehle zum Roboter
+   */
+  def sendMsgToRobot() {
+    for (elem <- gui.table_commandList.selection.rows) {
+      val hc = (gui.table_commandList(elem, 0), gui.table_commandList(elem, 1), gui.table_commandList(elem, 2), gui.table_commandList(elem, 3)).hashCode
+      model.noResponse ! model.commandHistoryMap(hc)
+    }
   }
 
   /**
@@ -112,7 +125,16 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
       model.noResponse = noResponse
       model.response = response
     }
+      val rsnr = if (model.cBox_Robots.selection.item != "ALL") Some(model.cBox_Robots.selection.item) else None
+      val command = if (model.cBox_Commands.selection.item != "All Commands") Some(model.cBox_Commands.selection.item) else None
+      val tStart = if (gui.cBox_starttime.selected) Some(gui.ftxtField_starttime.peer.getValue.asInstanceOf[Date].getTime) else None
+      val tEnd = if (gui.cBox_endtime.selected) Some(gui.ftxtField_endtime.peer.getValue.asInstanceOf[Date].getTime) else None
+      val tagText = gui.textfield_tags.peer.getText.trim.toLowerCase.replaceAll(" ", "")
+      val tags = if (!tagText.isEmpty) Some(tagText.split( """,|;""").toList) else None
 
+      gui.button_sendToRobot.enabled = false
+
+      model.commandActor ! SearchCommand(rsnr, command, tStart, tEnd, tags)
     // ----- Empfagen des  Suchergebnisses -----
     case ReceivedCommand(commandList) =>
       commandList match {
