@@ -23,8 +23,6 @@ import javax.swing.event.TableModelEvent
  * @param gui die zu steuernde GUI
  */
 class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI, model: Model) extends Actor {
-  //val TableListe
-
   // ----- Aktorreferenzen der Datenbankaktoren -----
   var commandActor: ActorRef = null
   var fileActor: ActorRef = null
