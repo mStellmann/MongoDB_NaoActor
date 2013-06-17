@@ -19,10 +19,8 @@ object DBHelloWorld extends App {
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
 
   // DBConfigurator startet unser System muss auf dem MongoDB Rechner gestartet werden
-  // DONT 
-  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
-  //
-  Thread.sleep(1500)
+  // DONT system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  // Thread.sleep(1500)
 
   val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
 
