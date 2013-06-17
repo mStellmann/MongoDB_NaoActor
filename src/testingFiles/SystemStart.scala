@@ -12,6 +12,8 @@ import dbActors.DBConfigurator
 object SystemStart extends App {
 
   val config = ConfigFactory.load()
+    
+  //TODO Config anpassen so, dass anfragen von extern beantwortet werden
   val system = ActorSystem("remoting", config.getConfig("remoting").withFallback(config))
 
   val configurator = system.actorOf(Props[DBConfigurator], name = "DBConfigurator")

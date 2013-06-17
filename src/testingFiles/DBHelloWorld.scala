@@ -19,11 +19,13 @@ object DBHelloWorld extends App {
   val naoActor = system.actorFor("akka://naogateway@192.168.1.100:2552/user/nila")
 
   // DBConfigurator startet unser System muss auf dem MongoDB Rechner gestartet werden
-  // DONT system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
-  // Thread.sleep(1500)
-
-  val agent = system.actorFor("akka://naogateway@192.168.1.112:2554/user/DBConfigurator/DBAgent")
-  System.out.println(agent)
+  system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
+  Thread.sleep(1500)
+  
+  //TODO SystemStart Config anpassen
+  //val agent = system.actorFor("akka://naogateway@192.168.1.112:2554/user/DBConfigurator/DBNameService")
+  val agent = system.actorFor("/user/DBConfigurator/DBNameService")
+ 
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
   //Aktor besser mit become realisieren!
@@ -33,9 +35,7 @@ object DBHelloWorld extends App {
 
     // Getting the Database Actors
     override def preStart = agent ! DatabaseActors;
-    System.out.println("preStart - DatabaseActors")
     naoActor ! Connect
-    System.out.println("preStart - Connect")
     Thread.sleep(2000)
 
     var noresponseA: ActorRef = self
