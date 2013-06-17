@@ -38,11 +38,12 @@ class DatabaseSwingGUI extends MainFrame {
 
   // ----- Datumsfelder und deren Checkboxen -----
   val cBox_starttime = new CheckBox
-  val cBox_endtime = new CheckBox
   val ftxtField_starttime = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")) {
     peer.setValue(new Date())
     enabled = false
   }
+
+  val cBox_endtime = new CheckBox
   val ftxtField_endtime = new FormattedTextField(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")) {
     peer.setValue(new Date())
     enabled = false

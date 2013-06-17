@@ -14,6 +14,7 @@ import naogateway.value.NaoMessages.Call
 import java.util.Date
 import naogateway.value.NaoMessages
 import messages.internalMessages.{DatabaseNames, GetDatabaseNames}
+import javax.swing.event.TableModelEvent
 
 /**
  * Controller fuer die DatabaseSwingGUI
@@ -22,6 +23,8 @@ import messages.internalMessages.{DatabaseNames, GetDatabaseNames}
  * @param gui die zu steuernde GUI
  */
 class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI, model: Model) extends Actor {
+  val TableListe
+
   // ----- Aktorreferenzen der Datenbankaktoren -----
   var commandActor: ActorRef = null
   var fileActor: ActorRef = null
@@ -75,7 +78,6 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
       case true => gui.button_sendToRobot.enabled = false
       case false => gui.button_sendToRobot.enabled = true
     }
-
   }
 
   /**
@@ -126,16 +128,19 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
     case ReceivedCommand(commandList) =>
       commandList match {
         case Left(callList) => {
+          // ----- Tabelle wird geleert -----
           gui.tableModel.getDataVector.removeAllElements()
+
           val mutableMap = scala.collection.mutable.HashMap[Int, Call]()
           for (elem <- callList) {
+            // ----- Abbildung Hashwert -> Call -----
             val ary: Array[AnyRef] = Array(elem._1.module + " (" + elem._1.method + ")", NaoMessages.toString(elem._1.parameters(0)), new Date(elem._2).toString, elem._3.foldLeft("")((res, text) => res + text + ", ")).asInstanceOf[Array[AnyRef]]
             mutableMap.put((ary(0), ary(1), ary(2), ary(3)).hashCode, elem._1)
             gui.tableModel.addRow(ary)
           }
           model.commandHistoryMap = mutableMap.toMap
         }
-
+        // ----- Falls keine Daten gefunden wurden -----
         case Right(errMsg) => {
           gui.tableModel.getDataVector.removeAllElements()
           gui.table_commandList.revalidate()

@@ -56,7 +56,6 @@ object DBGui extends App {
 
   // ----- Erstellen des Aktorensystems der Datenbank -----
   system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
-
   val agent = system.actorFor("akka://remoting/user/DBConfigurator/DBAgent")
 
   // ----- Erstellung des Controller der GUI -----
