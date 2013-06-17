@@ -22,7 +22,7 @@ object DBHelloWorld extends App {
   // DONT system.actorOf(Props[DBConfigurator], name = "DBConfigurator")
   // Thread.sleep(1500)
 
-  val agent = system.actorSelection("/user/DBConfigurator/DBAgent")
+  val agent = system.actorSelection("/user/DBConfigurator/DBNameService")
 
   system.actorOf(Props[HelloWorldActor], name = "HelloWorldActor")
 
@@ -39,7 +39,7 @@ object DBHelloWorld extends App {
     var noresponseA: ActorRef = self
 
     def receive = {
-    	
+
       //NaoGateWay Aktoren
       case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
         noresponseA = noResponse
@@ -72,4 +72,5 @@ object DBHelloWorld extends App {
 
     }
   }
+
 }

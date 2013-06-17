@@ -8,7 +8,7 @@ import java.io.FileInputStream
 /**
  * This actor initializes our DBActor-System and supervises the own actor-childs.
  * First of all it creates the MongoDBActor to providing the communication with the Database.
- * Afterwards the DBAgent will be created, which provides the user->system-communication.
+ * Afterwards the DBNameService will be created, which provides the user->system-communication.
  */
 // TODO - Config für MongoDB einlesen..
 class DBConfigurator extends Actor {
@@ -19,10 +19,11 @@ class DBConfigurator extends Actor {
 
   // creating and starting the MongoDBActor
   val childMongo = context.actorOf(Props().withCreator(new MongoDBActor(MongoClient(), robotSNRList)), name = "MongoDBActor")
-  // creating and starting the DBAgent
-  val childAgent = context.actorOf(Props().withCreator(new DBAgent(robotSNRList)), name = "DBAgent")
+  // creating and starting the DBNameService
+  val childAgent = context.actorOf(Props().withCreator(new DBNameService(robotSNRList)), name = "DBNameService")
   println("Configurator println(childAgent)")
   println(childAgent)
+
   override def preStart() {
     println("DBConfigurator - preStart")
     context.watch(childMongo)

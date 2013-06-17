@@ -12,19 +12,18 @@ import naogateway.value.Hawactormsg.MixedValue
 import com.mongodb.casbah.Imports._
 
 
-
 /**
  * This Actor provides the functionality to logging and reading commands from a Nao-Robot.
  */
 
 // TODO - Gregstar
-class DBAccessCommand extends Actor {
+class DBFacade extends Actor {
 
   //  val mongoDBActor = context.actorSelection("/user/DBConfigurator/MongoDBActor")
   val mongoDBActor = context.actorFor("/user/DBConfigurator/MongoDBActor")
   //println("dbacces " + mongoDBActor)
 
-  val agent = context.actorSelection("/user/DBConfigurator/DBAgent")
+  val agent = context.actorSelection("/user/DBConfigurator/DBNameService")
 
 
   /**
@@ -32,7 +31,7 @@ class DBAccessCommand extends Actor {
    *
    */
   def receive = {
-    
+
     /** Zerlege den Call Befehl und speichere ihn in der MongoDB */
     case SaveCommand(robotSerialNumber, timestamp, call, tagList) => {
       //println("SaveCommand in DB Access")
@@ -52,11 +51,12 @@ class DBAccessCommand extends Actor {
     /** Suche ein Call in der Datenbank */
     case SearchCommand(collection, robotSerialNumber, timestampStart, timestampEnd, tagList) =>
       val searchMap = if (tagList.isDefined) Some(Map("tags" -> tagList.get)) else None
+
       /** Leite die Frage an die MongoDB weiter */
       mongoDBActor ! SearchData(robotSerialNumber, collection, timestampStart, timestampEnd, searchMap, sender)
 
-    
-     /** Verarbeitet die gefunden Daten und baut den Call Befehl zusammen */
+
+    /** Verarbeitet die gefunden Daten und baut den Call Befehl zusammen */
     case ReceivedData(dataList, origin) => dataList match {
       case Success(list) => {
         val commands = for (entry <- list) yield {
@@ -72,12 +72,12 @@ class DBAccessCommand extends Actor {
         //val only = commands.filter(_.isInstanceOf[(Call, Any, Any)])
         // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(List[(Call,RichLong,List[String])] ()) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
         // val onlyCommands:List[(Call,RichLong,List[String])] = only.foldLeft(Nil) ((list,(call,time,tags)) => list ++ List((call.asInstanceOf[Call],time.asInstanceOf[RichLong],tags.asInstanceOf[List[String]])))
-        
+
         //Cast zu den richtigen Typen fuer die Rueckgabe Nachricht
         val onlyCommands: List[(Call, Long, List[String])] = for ((call, time, tags) <- commands) yield {
           (call.asInstanceOf[Call], time.asInstanceOf[Long], tags.asInstanceOf[List[String]])
         }
-        
+
         //Sortiere die Rueckgabe nach speicherzeitpunkt
         val sortedOnlyCommands = onlyCommands.sortBy(_._2)
 
@@ -91,10 +91,11 @@ class DBAccessCommand extends Actor {
 
 
     }
-    /** Fragt die datenbank nach vorhandenen Datenbanken*/
+
+    /** Fragt die datenbank nach vorhandenen Datenbanken */
     case GetDatabaseNames => mongoDBActor ! GetDatabaseNamesOrigin(sender)
-    
-    /** Liefert die vorhanden Datenbanken zurueck an den Anfrager*/
+
+    /** Liefert die vorhanden Datenbanken zurueck an den Anfrager */
     case DatabaseNamesOrigin(list, origin) => origin ! DatabaseNames(list)
 
   }

@@ -92,6 +92,6 @@ class DatabaseSwingGUI extends MainFrame {
  * @param model Daten der Tabelle
  * @param columnNames Spaltennamen der Tabelle
  */
-class MyTableModel(model: Array[Array[AnyRef]], columnNames: Array[AnyRef]) extends DefaultTableModel(model, columnNames) {
+private class MyTableModel(model: Array[Array[AnyRef]], columnNames: Array[AnyRef]) extends DefaultTableModel(model, columnNames) {
   override def isCellEditable(row: Int, column: Int) = false
 }

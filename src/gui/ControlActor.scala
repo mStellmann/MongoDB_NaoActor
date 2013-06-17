@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, Actor}
 import messages.agentMessages.{RobotSerialNumbers, DatabaseActors, ReceivedRobotSerialNumbers, ReceivedDatabaseActors}
 import scala.swing.{Dialog, ComboBox}
 import scala.swing.event.{TableRowsSelected, ButtonClicked}
-import messages.userMessages.{SaveCommand, ReceivedCommand, SearchCommand}
+import messages.userMessages.{ReceivedCommand, SearchCommand}
 
 import naogateway.value.NaoMessages._
 import naogateway.value.NaoMessages.Conversions._
@@ -14,23 +14,14 @@ import naogateway.value.NaoMessages.Call
 import java.util.Date
 import naogateway.value.NaoMessages
 import messages.internalMessages.{DatabaseNames, GetDatabaseNames}
-import javax.swing.event.TableModelEvent
 
 /**
  * Controller fuer die DatabaseSwingGUI
- * @param agent Aktorreferenz des DBAgent
+ * @param agent Aktorreferenz des DBNameService
  * @param robotActor Aktorreferenz des anzusprechenden Roboters
  * @param gui die zu steuernde GUI
  */
 class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI, model: Model) extends Actor {
-  // ----- Aktorreferenzen der Datenbankaktoren -----
-  var commandActor: ActorRef = null
-  var fileActor: ActorRef = null
-
-  // ----- Aktorreferenzen der NAOGateway-Aktoren -----
-  var noResponse: ActorRef = null
-  var response: ActorRef = null
-
   // ----- GUI-Listener -----
   gui.listenTo(gui.button_search, gui.button_sendToRobot, gui.cBox_starttime, gui.cBox_endtime, gui.table_commandList.selection)
 
@@ -47,14 +38,14 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
 
       gui.button_sendToRobot.enabled = false
 
-      commandActor ! SearchCommand(rsnr, command, tStart, tEnd, tags)
+      model.commandActor ! SearchCommand(rsnr, command, tStart, tEnd, tags)
     }
 
     // ----- Befehl zum Roboter senden -----
     case ButtonClicked(gui.button_sendToRobot) => gui.table_commandList.selection.rows.isEmpty match {
       case false => for (elem <- gui.table_commandList.selection.rows) {
         val hc = (gui.table_commandList(elem, 0), gui.table_commandList(elem, 1), gui.table_commandList(elem, 2), gui.table_commandList(elem, 3)).hashCode
-        noResponse ! model.commandHistoryMap(hc)
+        model.noResponse ! model.commandHistoryMap(hc)
       }
       case true => Dialog.showMessage(gui.button_sendToRobot, "Keine gültige Auswahl in der Tabelle!", title = "Auswahl-Fehler")
     }
@@ -92,10 +83,10 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
   def receive = {
     // ----- Empfangen der Datenbankaktoren -----
     case ReceivedDatabaseActors(cActor, fActor) => {
-      commandActor = cActor
-      fileActor = fActor
+      model.commandActor = cActor
+      model.fileActor = fActor
       // ----- gespeicherte Befehlskategorien abfragen -----
-      commandActor ! GetDatabaseNames
+      model.commandActor ! GetDatabaseNames
       // ----- gespeicherte Roboter (Seriennummern | Namen) abfragen -----
       sender ! RobotSerialNumbers
 
@@ -118,8 +109,8 @@ class ControlActor(agent: ActorRef, robotActor: ActorRef, gui: DatabaseSwingGUI,
 
     // ----- Empfangen der Naogateway-Aktoren -----
     case (response: ActorRef, noResponse: ActorRef, vision: ActorRef) => {
-      this.noResponse = noResponse
-      this.response = response
+      model.noResponse = noResponse
+      model.response = response
     }
 
     // ----- Empfagen des  Suchergebnisses -----

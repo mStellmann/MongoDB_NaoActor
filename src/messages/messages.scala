@@ -1,6 +1,6 @@
 package messages
 
-// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further DatabaseActor) (e.g. DBAccessCommand)
+// communication between MongoDBActor and "Use-Case-Actors-For-Saving-In-Database"(further DatabaseActor) (e.g. DBFacade)
 package internalMessages {
 
 import akka.actor.ActorRef
@@ -8,18 +8,18 @@ import scala.util.Try
 import naogateway.value.NaoMessages.Call
 
 /**
- *     Schickt eine Liste mit den Collections ( Bsp: ALMotion )
+ * Schickt eine Liste mit den Collections ( Bsp: ALMotion )
  *
  * @param databases
  */
-case class DatabaseNames(databases :List[String])
+case class DatabaseNames(databases: List[String])
 
 /**
- *    Interne Nachricht, schickt eine Liste mit den Collections  ( Bsp: ALMotion )
+ * Interne Nachricht, schickt eine Liste mit den Collections  ( Bsp: ALMotion )
  * @param databases
  * @param origin  urspruengliche Anfrage Referenz
  */
-case class DatabaseNamesOrigin(databases :List[String], origin :ActorRef)
+case class DatabaseNamesOrigin(databases: List[String], origin: ActorRef)
 
 
 /**
@@ -35,7 +35,7 @@ case object GetDatabaseNames
 case class GetDatabaseNamesOrigin(origin: ActorRef)
 
 /**
- *  Interne Nachricht
+ * Interne Nachricht
  * @param collection   Bsp: ALMotion
  * @param robotSerialNumber  Die Seriennummer des Roboters
  * @param timestamp    Zeitstempel
@@ -44,7 +44,7 @@ case class GetDatabaseNamesOrigin(origin: ActorRef)
 case class Save(collection: String, robotSerialNumber: String, timestamp: Long, content: Map[String, List[Any]])
 
 /**
- * Nachricht User->DBAccessCommand
+ * Nachricht User->DBFacade
  * @param collection    BSp: ALTextToSpeach
  * @param robotSerialNumber  Die Seriennummer des Roboters
  * @param timestamp   Zeitstempel
@@ -54,7 +54,7 @@ case class Save(collection: String, robotSerialNumber: String, timestamp: Long, 
 case class SaveCommand(collection: String, robotSerialNumber: String, timestamp: Long, command: Call, content: Map[String, List[AnyVal]])
 
 /**
- * Nachricht User->DBAccessCommand
+ * Nachricht User->DBFacade
  * @param collection   Bsp: ALMotion
  * @param robotSerialNumber  Die Seriennummer des Roboters
  * @param timestamp  Zeitstempel
@@ -66,7 +66,7 @@ case class SaveCommand(collection: String, robotSerialNumber: String, timestamp:
 case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, file: Array[Byte], content: Map[String, List[String]])
 
 /**
- * Suchnachricht User->DBAccessCommand
+ * Suchnachricht User->DBFacade
  * @param collection    Bsp: ALMotion
  * @param robotSerialNumber  Die Seriennummer des Roboters
  * @param timestampStart  Zeitstempel Anfang (suche "von" )
@@ -77,7 +77,7 @@ case class SaveFile(collection: String, robotSerialNumber: String, timestamp: Lo
 case class SearchData(collection: Option[String], robotSerialNumber: Option[String], timestampStart: Option[Long], timestampEnd: Option[Long], content: Option[Map[String, List[String]]], origin: ActorRef)
 
 /**
- * Suchnachricht User->DBAccessCommand
+ * Suchnachricht User->DBFacade
  * @param collection    Bsp: ALMotion
  * @param robotSerialNumber   Die Seriennummer des Roboters
  * @param timestampStart     Zeitstempel Anfang (suche "von" )
@@ -88,20 +88,21 @@ case class SearchData(collection: Option[String], robotSerialNumber: Option[Stri
  * @param origin      Sender
  */
 case class SearchFile(collection: Option[String], robotSerialNumber: Option[String], timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], filename: Option[String], content: Option[Map[String, List[String]]], origin: ActorRef)
+
 //case class SearchFile(robotSerialNumber: String, timestampStart: Option[Long], timestampEnd: Option[Long], filetyp: Option[String], content: Option[Array[Byte]], origin: ActorRef)
 /**
- * MongoDBActor -> DBAccessCommand
+ * MongoDBActor -> DBFacade
  * @param dataList
  * @param origin
  */
 case class ReceivedData(dataList: Try[List[Map[String, List[Any]]]], origin: ActorRef)
 
 /**
- * MongoDBActor -> DBAccessCommand
+ * MongoDBActor -> DBFacade
  * @param fileList  Liste mit Dateien
  * @param origin
  */
-case class ReceivedFile(fileList: Try[List[(String,String,Long,Array[Byte])]], origin: ActorRef)
+case class ReceivedFile(fileList: Try[List[(String, String, Long, Array[Byte])]], origin: ActorRef)
 
 }
 
@@ -129,7 +130,7 @@ import naogateway.value.NaoMessages.Call
 
 //case class SaveMovement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[AnyVal], tagList: List[String] = Nil) extends TMovement
 /**
- * ControlAgent -> DBAccessCommand
+ * ControlAgent -> DBFacade
  * @param robotSerialNumber   Die Seriennummer des Roboters
  * @param timestamp       Zeitstempel
  * @param naoCommand      Der Nao-Befehl der gespeichert werden soll
@@ -138,7 +139,7 @@ import naogateway.value.NaoMessages.Call
 case class SaveCommand(robotSerialNumber: String, timestamp: Long, naoCommand: Call, tagList: List[String] = Nil) extends TCall
 
 /**
- *  ControlAgent -> DBAccessCommand
+ * ControlAgent -> DBFacade
  * @param robotSerialNumber    Die Seriennummer des Roboters
  * @param timestamp      Zeitstempel
  * @param filename      Dateiname
@@ -150,7 +151,7 @@ case class SaveCommand(robotSerialNumber: String, timestamp: Long, naoCommand: C
 case class SaveAudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String] = Nil) extends TFile
 
 /**
- * ControlAgent -> DBAccessCommand
+ * ControlAgent -> DBFacade
  * @param robotSerialNumber
  * @param timestamp
  * @param filename
@@ -162,7 +163,7 @@ case class SaveAudioFile(robotSerialNumber: String, timestamp: Long, filename: S
 case class SaveVideoFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, videoFile: Array[Byte], tagList: List[String] = Nil) extends TFile
 
 /**
- * ControlAgent -> DBAccessCommand
+ * ControlAgent -> DBFacade
  * @param robotSerialNumber
  * @param timestamp
  * @param filename
@@ -175,7 +176,7 @@ case class SavePicture(robotSerialNumber: String, timestamp: Long, filename: Str
 
 //case class SearchMovement(robotSerialNumber: String, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, commandList: Option[List[String]] = None, tagList: Option[List[String]] = None)
 /**
- * User -> DBAccessCommand
+ * User -> DBFacade
  * @param robotSerialNumber
  * @param collection
  * @param timestampStart
@@ -185,7 +186,7 @@ case class SavePicture(robotSerialNumber: String, timestamp: Long, filename: Str
 case class SearchCommand(robotSerialNumber: Option[String], collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, tagList: Option[List[String]] = None)
 
 /**
- *  User -> DBAccessCommand
+ * User -> DBFacade
  * @param robotSerialNumber
  * @param collection
  * @param timestampStart
@@ -198,7 +199,7 @@ case class SearchCommand(robotSerialNumber: Option[String], collection: Option[S
 case class SearchAudioFile(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
 /**
- * User -> DBAccessCommand
+ * User -> DBFacade
  * @param robotSerialNumber
  * @param collection
  * @param timestampStart
@@ -211,7 +212,7 @@ case class SearchAudioFile(robotSerialNumber: String, collection: Option[String]
 case class SearchVideoFile(robotSerialNumber: String, collection: Option[String] = None, timestampStart: Option[Long] = None, timestampEnd: Option[Long] = None, filename: Option[String] = None, filetyp: Option[String] = None, tagList: Option[List[String]] = None)
 
 /**
- * User -> DBAccessCommand
+ * User -> DBFacade
  * @param robotSerialNumber
  * @param collection
  * @param timestampStart
@@ -232,10 +233,13 @@ case class SearchPicture(robotSerialNumber: String, collection: Option[String] =
  * @param commandTimestampTagList
  */
 case class ReceivedCommand(commandTimestampTagList: Either[(List[(Call, Long, List[String])]), String])
+
 @Deprecated
 case class ReceivedAudioFile(audioFileList: Either[List[AudioFile], String])
+
 @Deprecated
 case class ReceivedVideoFile(videoFileList: Either[List[VideoFile], String])
+
 @Deprecated
 case class ReceivedPicture(imageList: Either[List[Picture], String])
 
@@ -256,10 +260,13 @@ sealed trait TFile
 //case class Movement(robotSerialNumber: String, timestamp: Long, movementCommand: String, argumentList: List[AnyVal], tagList: List[String]) extends TMovement
 
 case class SavedCommand(robotSerialNumber: String, timestamp: Long, naoCommand: Call, tagList: List[String] = Nil) extends TCall
+
 @Deprecated
 case class AudioFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, audioFile: Array[Byte], tagList: List[String]) extends TFile
+
 @Deprecated
 case class VideoFile(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, videoFile: Array[Byte], tagList: List[String]) extends TFile
+
 @Deprecated
 case class Picture(robotSerialNumber: String, timestamp: Long, filename: String, filetyp: String, imageFile: Array[Byte], tagList: List[String]) extends TFile
 
