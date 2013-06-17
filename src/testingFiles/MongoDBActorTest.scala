@@ -21,8 +21,8 @@ object MongoDBActorTest extends App {
   val findActor = system.actorOf(Props[FindActor], name = "FindActor")
 
   //Save some Random Stuff
-  mongoDB ! Save("movs", "nila", 23479812, Map("forw" -> List(8), "tags" -> List("gehen", "stolpern")))
-  mongoDB ! Save("movs", "nila", 23479813, Map("back" -> List(8, 3.789)))
+  mongoDB ! Save("movs", "Nila", 23479812, Map("forw" -> List(8), "tags" -> List("gehen", "stolpern")))
+  mongoDB ! Save("movs", "Nila", 23479813, Map("back" -> List(8, 3.789)))
 
   //Read a File and get its ByteArray
   val file = new File("documents/NaoProjekt-DB_Dokumentation.doc")
@@ -45,7 +45,8 @@ object MongoDBActorTest extends App {
 
       case "Find" => {
         //Search things
-        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("a"))), self)
+        mongoDB ! SearchData(Some("ALTextToSpeech"), Some("Nila"), None, Some(23479815), Some(Map("tags" -> List("gehen"))), self)
+        mongoDB ! SearchData(None,None,None,None, None, self)
         mongoDB ! SearchFile(Some("filetest"), None, None, None, None, None, Some(Map("tags" -> List("complete", "awesome"))), self)
         mongoDB ! SearchFile(None, None, None, None, Some("application/msword"), Some("Doku.doc"), None, self)
 
