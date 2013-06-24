@@ -1,12 +1,39 @@
-Stuff to do:
-- dateisuche     (vllt. als Tab-Panel)
-- Systemstart Config anpassen
-- verschiedene rechner
-- supervisor strategien
-- Queue für die Befehle
-- Rechts-Klick -> PopUp Menu  | Drag and Drop
+Einleitung:
+Bei diesem Projekt handelt es sich um ein Aktorensystem, eine NoSQL-Datenbank - MongoDB - in das bestehende
+Aktorensystem der NAOs einzubinden.
+Unser Ziel war es die vorhandenen NAO-Gateway-Befehle in der Datenbank zu loggen und jederzeit die vom User geloggten
+Aktionen dem NAO zu zusenden, damit dieser vorherige Befehle/Befehlsfolgen wieder ausfuehren kann.
+Um eine grafische Darstellung der Daten zu gewaehren, haben wir eine GUI implementiert.
+
+ 
+Designentscheidungen:
+- immutable Datenbank
+- stateless Aktoren
+- Zeitstempel als Long seit 1970
+- Files als Byte[]
 
 
+Einfuehrung in das Projekt:
+Um eine Uebersicht fuer das System zu erhalten, befindet sich die Datei "Uebersicht_final_A.png" im Ordner "documents".
+Zu dieser Uebersicht gibt es Code Beispiele zur Verwendung unter "src/testingFiles" => "DBHelloWorld".
+Die GUI kann man unter "gui/DBGuiStarter" starten.
+Alle von uns verwendeten jars haben wir in dieses Repository hochgeladen.
 
+
+TODOs:
+- Dateisuche nach Metadaten(Tags) und Darstellung in der GUI    (vllt. als Tab-Panel)
+- Systemstart-Config anpassen, damit die Aktoren auf verschieden Rechnen lauffaehig sind
+- Supervisor-Strategien fuer alle Aktoren festlegen und implementieren
+- Szenarien / Befehlsabfolgen aus den Datenbankeintraegen zusammenstellen und abspeichern
+    - Idee: Szenarieneditor erstellen
+    - per Drag and Drop oder Popup-Menus Daten einfuegen
+- Position und Integration des DBSystem in der NAO Umgebung festlegen
+
+
+Links:
+https://github.com/hannibalhh/naogatewayRemoteClient
+http://www.mongodb.org/
+http://akka.io/
+http://mongodb.github.io/casbah/setting_up.html
 
 

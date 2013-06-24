@@ -9,7 +9,7 @@ import scala.swing._
  * Startet die GUI und erzeugt ein Aktorensystem fuer die Datenbank und stellt die Verbindung zum Aktorensystem
  * des NAOGateways her
  */
-object DBGui extends App {
+object DBGuiStarter extends App {
   // ----- View und Model erstellen -----
   val gui = new DatabaseSwingGUI
   val model = new Model
